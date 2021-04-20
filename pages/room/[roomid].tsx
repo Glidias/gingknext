@@ -1,6 +1,6 @@
 import { RoomServiceProvider } from "@roomservice/react";
 import RoomViewer from "../../components/room-viewer";
-import { useUserID } from "../util/mockuser";
+import { useUserID } from "../../shared/util/mockuser";
 import { useRouter } from 'next/router'
 
 async function myAuthFunction(params: {

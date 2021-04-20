@@ -1,7 +1,7 @@
 
 import { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
 import Doc from "../components/doc";
-import { GingkoNode, loadGingkoTree } from "./util/gingko";
+import { GingkoNode, loadGingkoTree } from "../shared/util/gingko";
 
 interface TreeProps {
   tree: GingkoNode[],
