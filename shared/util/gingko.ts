@@ -6,11 +6,13 @@ export interface GingkoNode {
 	children?:GingkoNode[]
 }
 
+export type GingkoTree = GingkoNode[];
+
 let valueKeyCounter = 0;
 
-export async function loadGingkoTree(treeid:string, cleanup:boolean=true) {
+export async function loadGingkoTree(treeid:string, cleanup:boolean=true):Promise<GingkoTree | null> {
   let errorCode = 0;
-  let result:GingkoNode[] = [];
+  let result:GingkoTree = [];
 
   try {
     const curlOpts = {
@@ -34,7 +36,7 @@ export async function loadGingkoTree(treeid:string, cleanup:boolean=true) {
   return result;
 }
 
-export function cleanupGingkoTree(tree:GingkoNode[]):GingkoNode[] {
+export function cleanupGingkoTree(tree:GingkoNode[]):GingkoTree {
   valueKeyCounter = 0;
   for (let i = 0, l = tree.length; i < l; i++) {
     setupNode(tree[i]);
@@ -47,7 +49,7 @@ function nodeGotContent(node:GingkoNode):boolean {
   return node.content != "";
 }
 
-function cleanNodes(nodes:GingkoNode[]):GingkoNode[] {
+function cleanNodes(nodes:GingkoNode[]):GingkoTree {
   return nodes.filter(nodeGotContent);
 }
 

@@ -1,10 +1,10 @@
 
 import { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
-import Doc from "../components/doc";
+import Doc from "../components/Doc";
 import { GingkoNode, loadGingkoTree } from "../shared/util/gingko";
 
 interface TreeProps {
-  tree: GingkoNode[],
+  tree: GingkoNode[] | null,
   treeid: string
 }
 
@@ -19,9 +19,13 @@ export async function getServerSideProps(context:GetServerSidePropsContext):Prom
   };
 }
 
-export default function TreeDoc(props) {
-  // console.log(props.tree);
+export default function TreeDoc<Function>(props:TreeProps) {
   return (
-    <Doc></Doc>
+    props.tree ?
+    <Doc tree={props.tree}></Doc>
+    :
+    <div>
+      Failed to find tree: {props.treeid}
+    </div>
   );
 }

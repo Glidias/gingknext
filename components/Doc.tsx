@@ -1,5 +1,11 @@
-export default function Doc() {
+import { FunctionComponent } from "react";
+import { GingkoTree } from "../shared/util/gingko";
 
+interface DocProps {
+  readonly tree: GingkoTree,
+}
+
+const Doc: FunctionComponent<DocProps> = ({tree}) => {
 return (
 <div id="document">
   <div className="left-padding-column" />
@@ -853,3 +859,5 @@ return (
 </div>
 );
 }
+
+export default Doc;
