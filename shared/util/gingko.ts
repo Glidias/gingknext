@@ -45,7 +45,7 @@ export async function loadGingkoTree(treeid:string, cleanup:boolean=true):Promis
     let isMock = treeid.charAt(0) === "-";
     const { statusCode, data, headers } = await curly.get(
       !isMock ? 'https://gingkoapp.com/' + treeid + '.json'
-      : DOMAIN + '/mockdata/'+treeid.slice(1) + '.json'
+      : DOMAIN + '/templates/'+treeid.slice(1) + '.json'
     , curlOpts);
 
     resultData = data;
