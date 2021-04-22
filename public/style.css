@@ -504,6 +504,21 @@ a.forgot-password {
   padding: 3px 7px;
   font-size: 14px;
 }
+#document-list-buttons {
+  display: flex;
+  justify-content: space-around;
+}
+#document-list-buttons .sort-button {
+  color: var(--ui-2-border-color);
+  fill: var(--ui-2-border-color);
+  width: 40px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+#document-list-buttons .sort-button.selected, #document-list-buttons .sort-button:hover {
+  fill: black;
+  color: black;
+}
 #document-switcher-icon {
   grid-area: row3-icon;
 }
@@ -797,7 +812,7 @@ a.forgot-password {
   grid-area: header-menu;
   height: 40px;
   display: grid;
-  grid-template-columns: 1fr auto auto 40px;
+  grid-template-columns: 1fr 182px auto 40px;
   grid-template-areas: "slider info restore close";
   grid-column-gap: 15px;
   padding-left: 15px;
@@ -1338,12 +1353,17 @@ span.trial-dark {
 }
 
 .context-menu-item {
+  display: flex;
   cursor: pointer;
   padding: 6px 10px;
   font-size: 16px;
 }
 .context-menu-item:hover {
   background-color: lightblue;
+}
+.context-menu-item .icon {
+  width: 16px;
+  margin-right: 10px;
 }
 
 .modal-container {
@@ -1366,6 +1386,8 @@ span.trial-dark {
   padding: 10px;
   border-radius: 8px;
   background-color: var(--active-bg);
+  display: flex;
+  flex-direction: column;
   z-index: 21;
 }
 
@@ -1458,7 +1480,6 @@ span.trial-dark {
   overflow-x: hidden;
   overflow-y: scroll;
   scrollbar-width: none;
-  transform: translateZ(0);
 }
 
 .column::-webkit-scrollbar {
@@ -1593,7 +1614,8 @@ span.trial-dark {
 .group.active-descendant {
   color: var(--normal-text-color-medium);
   background: var(--active-bg);
-  border-radius: 8px 0 0 8px;
+  border-radius: unset;
+  z-index: 9;
 }
 
 .group .card .view img {
@@ -1663,22 +1685,6 @@ span.trial-dark {
   box-shadow: 0px 1px 3px gray;
 }
 
-.group.has-active .card.active.has-children::after {
-  content: '';
-  background: var(--active-bg);
-  position: absolute;
-  width: 12px;
-  height: 100%;
-  right: -10px;
-  top: 0;
-  opacity: 1;
-  transition: none;
-  box-shadow: 3px 1px 3px gray;
-}
-.group.has-active .card.editing.has-children::after {
-  opacity: 0;
-  transition: opacity 2s ease;
-}
 
 .card.ancestor {
   background: var(--tree-bg-1);
@@ -1779,6 +1785,14 @@ span.collaborators {
   top: calc(50% - 5px);
   left: -10px;
 }
+.tip-above .tooltip-arrow {
+  border-top: 5px solid rgba(0,0,0,0.9);
+  border-bottom: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-left: 5px solid transparent;
+  top: 100%;
+  left: calc(50% - 5px);
+}
 .tip-below .tooltip-arrow {
   border-bottom: 5px solid rgba(0,0,0,0.9);
   border-top: 5px solid transparent;
@@ -1877,8 +1891,7 @@ div.tour-step {
 #app-root.step-1 #welcome-step-1 {
   display: block;
   opacity: 1;
-  top: -32px;
-  left: -2px;
+  transform: translateY(-120%);
 }
 #welcome-step-1 .arrow {
   bottom: -19px;
@@ -1899,10 +1912,10 @@ div.tour-step {
 #app-root.step-2 #welcome-step-2 {
   display: block;
   opacity: 1;
-  top: 17%;
-  right: 32px;
+  width: 100%;
   max-width: 206px;
   text-align: right;
+  transform: translateX(-108%);
 }
 #welcome-step-2 .arrow {
   top: 14px;
@@ -1923,6 +1936,7 @@ div.tour-step {
   display: block;
   opacity: 1;
   max-width: 206px;
+  top: 100%;
 }
 #welcome-step-3 .arrow {
   text-shadow: none;
@@ -1936,6 +1950,7 @@ div.tour-step {
   display: block;
   opacity: 1;
   max-width: 188px;
+  top: 100%;
 }
 #welcome-step-4 .arrow {
   text-shadow: none;
@@ -1948,7 +1963,7 @@ div.tour-step {
 #app-root.step-5 #welcome-step-5 {
   display: block;
   opacity: 1;
-  top: -32px;
+  transform: translate(50%,-100%);
 }
 #welcome-step-5 .arrow {
   text-shadow: none;
@@ -2160,7 +2175,14 @@ pre {
 .card.editing::before {
   content: attr(data-cloned-content) " ";
   white-space: pre-wrap;
+  word-break: break-word;
   visibility: hidden;
+}
+
+.card.active.has-children:not(.editing) {
+  margin-right: -9px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 
@@ -2234,6 +2256,63 @@ pre {
 }
 
 
+/* --- Fillet --- */
+
+.fillet {
+  width: 16px;
+  height: 16px;
+  position: absolute;
+  fill: white;
+  z-index: 1;
+  transform-origin: center;
+}
+.fillet.flipped {
+  fill: var(--bg-main);
+}
+.card.active .fillet.flipped {
+  fill: var(--tree-bg-1);
+}
+.fillet.top-right {
+  top: -16px;
+  right: 1px;
+}
+.card.active .fillet.top-right, .card.active .fillet.bottom-right {
+  right: 0;
+}
+.fillet.top-right.flipped {
+  top: 0;
+  transform: scaleY(-1);
+}
+.fillet.bottom-right {
+  bottom: -16px;
+  right: 1px;
+  transform: scaleY(-1);
+}
+.fillet.bottom-right.flipped {
+  bottom: 0;
+  transform: unset;
+}
+.fillet.top-left {
+  top: -16px;
+  left: 0;
+  transform: scaleX(-1);
+}
+.fillet.top-left.flipped {
+  top: 0;
+  transform: scale(-1,-1);
+}
+.fillet.bottom-left {
+  bottom: -16px;
+  left: 0;
+  transform: scale(-1,-1);
+}
+.fillet.bottom-left.flipped {
+  bottom: 0;
+  left: 0;
+  transform: scale(-1,1);
+}
+
+
 
 /* --- Button positioning & colors --- */
 
@@ -2256,6 +2335,9 @@ pre {
   border-left: none;
   width: 20px;
   right: -9px;
+}
+.card.has-children .ins-right {
+  right: 0;
 }
 .card-btn.ins-right::before {
     content: '';
@@ -2472,7 +2554,7 @@ pre {
 }
 .card.active.has-children.flash {
   margin-right: -9px; /* to extend glow to the right*/
-  padding-right: 9px; 
+  padding-right: 9px;
 }
 .card.active.has-children.flash .card-right-overlay {
   margin-right: 9px;
