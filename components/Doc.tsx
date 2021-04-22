@@ -19,7 +19,7 @@ return (
   <div id="column-container">
     {
     columnGroups.map((groups, i) =>
-    <div className="column" key={i}>
+    <div className="column" key={i} id={`ginkcolumn-${i}`}>
       <div className="buffer" />
         { groups.map((g) =>
           <div className="group" key={g.parent_id}>

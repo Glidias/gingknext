@@ -73,7 +73,7 @@ var scrollFullscreenTo = function (cid) {
 
 var scrollTo = function (cid, colIdx, instant, position) {
   var card = document.getElementById("card-" + cid.toString());
-  var col = document.getElementsByClassName("column")[colIdx - 1];
+  var col = document.getElementById("ginkcolumn-" + (colIdx - 1));
   let doc = document.getElementById("document");
   if (card == null || doc == null) {
     console.log("scroll error: not found", cid);
@@ -92,7 +92,7 @@ var scrollTo = function (cid, colIdx, instant, position) {
 
 var scrollHorizTo = function (colIdx, instant) {
   let scrollDuration = instant ? 0 : 0.3;
-  var col = document.getElementsByClassName("column")[colIdx - 1];
+  var col = document.getElementById("ginkcolumn-" + (colIdx - 1));
   var appEl = document.getElementById("document");
 
 
