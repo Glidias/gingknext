@@ -1,5 +1,6 @@
 
 import { NextApiRequest, NextApiResponse } from "next";
+// @ts-ignore
 import createClient from "@roomservice/node";
 import { getRoomIdFromDetails, newRoomDetails, RoomDetails } from "../../shared/util/room";
 const apiKey = process.env.ROOMSERVICE_API_KEY;
