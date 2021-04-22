@@ -1,11 +1,16 @@
 import { FunctionComponent } from "react";
-import { GingkoTree } from "../shared/util/gingko";
+import { getColumns, GingkoTree } from "../shared/util/gingko";
+
 
 interface DocProps {
   readonly tree: GingkoTree,
 }
 
 const Doc: FunctionComponent<DocProps> = ({tree}) => {
+
+  let columns = getColumns(tree);
+
+
 return (
 <div id="document">
   <div className="left-padding-column" />
