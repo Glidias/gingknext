@@ -1,5 +1,5 @@
 export interface SLLPoolNode<T> {
-  v:T,
+  v:T | null,
   next: SLLPoolNode<T> | null
 }
 

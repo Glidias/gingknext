@@ -1,4 +1,4 @@
-import { FunctionComponent, memo } from "react"
+import { FunctionComponent, memo, useEffect, useRef } from "react"
 import ReactMarkdown from 'react-markdown'
 import gfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw';
@@ -8,7 +8,18 @@ import rehypeKatex from 'rehype-katex'
 */
 
 const DocCardView: FunctionComponent<{content: string}> = memo((props) => {
-	return <div className="view">
+
+  const containerRef = useRef<HTMLDivElement>(null);
+
+	useEffect(()=>{
+    if (containerRef && containerRef.current) {
+      containerRef.current.querySelectorAll('a').forEach((a)=>{
+        a.target = "_blank";
+      });
+    }
+	}, [props.content])
+
+	return <div className="view" ref={containerRef}>
 	<ReactMarkdown rehypePlugins={[rehypeRaw, gfm]}>
 		{props.content}
 	</ReactMarkdown>

@@ -116,7 +116,7 @@ function poolGTG_get(nodes, parent_id) {
 
 const stackGNodes: GingkoNode[] = [];
 
-const DESCENDANTS:Set<string> = new Set();
+export const ACTIVE_DESCENDANTS:Set<string> = new Set();
 /**
  *
  * @param fromId
@@ -124,7 +124,7 @@ const DESCENDANTS:Set<string> = new Set();
  * @return Set of descendant group ids (ie. cardIds with children) under a given node 'fromId'
  */
 export function getDescendantGrpIds (fromId: string, group:GingkoTreeGroup):Set<string> {
-  const descendents = DESCENDANTS;
+  const descendents = ACTIVE_DESCENDANTS;
   descendents.clear();
   let node = group.nodes.find((n)=> {
     return n._id === fromId;
@@ -153,7 +153,7 @@ export function getDescendantGrpIds (fromId: string, group:GingkoTreeGroup):Set<
   return descendents;
 }
 
-const ANCESTORS:Set<string> = new Set();
+export const ACTIVE_ANCESTORS:Set<string> = new Set();
 /**
  *
  * @param fromId
@@ -163,7 +163,7 @@ const ANCESTORS:Set<string> = new Set();
  * @return Set of card ids that are ancestors to a given node 'fromId'
  */
 export function getAncestors(fromId: string,  group:GingkoTreeGroup, columnGroups:GingkoTreeGroup[][], colIdx:number):Set<string> {
-  const ancestors = ANCESTORS;
+  const ancestors = ACTIVE_ANCESTORS;
   ancestors.clear();
   let node = group.nodes.find((n)=> {
     return n._id === fromId;
@@ -197,6 +197,8 @@ export function getColumnGroups(tree:GingkoTree):GingkoTreeGroup[][] {
 
   for(curNode = head; curNode !== null; curNode = curNode.next) {
     let q = curNode.v;
+    if (!q) continue;
+    curNode.v = null; // process once
 
     if (cueId === q.parent_id) {
       groups[++tarIndex] = [];
