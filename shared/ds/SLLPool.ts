@@ -37,4 +37,9 @@ export default class SLLPool<T> {
       return null; // factory
     }
   }
+
+  recycleList(head, tail) {
+    tail.next = this.pool;
+    this.pool = head;
+  }
 }

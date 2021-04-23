@@ -12,8 +12,9 @@ interface DocCardProps {
 const DocCard: FunctionComponent<DocCardProps> = ({node, activatedVector}) => {
 return <div
 	id={`card-${node._id}`}
-	dir="auto"
-	className={`card ${node.children && node.children.length ? 'has-children' : ''} ${activatedVector !== 0 ? activatedVector > 0 ? 'active' : 'ancestor' : ''}`}
+  dir="auto"
+  data-cardid={node._id}
+	className={`card${node.children && node.children.length ? ' has-children' : ''}${activatedVector !== 0 ? activatedVector > 0 ? ' active' : ' ancestor' : ''}`}
 	draggable="true"
 >
   <DocCardView content={node.content}></DocCardView>

@@ -1,5 +1,6 @@
 import { DOMAIN } from '../constants';
 import SLLPool, { SLLPoolNode } from '../ds/SLLPool';
+import { insertArrayContentsFromIdx, pushArrayWith } from './common-helpers';
 
 export interface GingkoNode {
 	content:string,
@@ -102,7 +103,7 @@ function cleanNodeChildren(node:GingkoNode):void {
 
 // getChildren~, getDescendants, getColumns!, getParent, getAncestors  ,
 
-var poolGTG: SLLPool<GingkoTreeGroup> = new SLLPool<GingkoTreeGroup>();
+const poolGTG: SLLPool<GingkoTreeGroup> = new SLLPool<GingkoTreeGroup>();
 function poolGTG_get(nodes, parent_id) {
   let res = poolGTG.get();
   if (res !== null) {
@@ -111,6 +112,71 @@ function poolGTG_get(nodes, parent_id) {
     return res;
   }
   else return poolGTG.createNodeOf({nodes, parent_id});
+}
+
+const stackGNodes: GingkoNode[] = [];
+
+const DESCENDANTS:Set<string> = new Set();
+/**
+ *
+ * @param fromId
+ * @param group
+ * @return Set of descendant group ids (ie. cardIds with children) under a given node 'fromId'
+ */
+export function getDescendantGrpIds (fromId: string, group:GingkoTreeGroup):Set<string> {
+  const descendents = DESCENDANTS;
+  descendents.clear();
+  let node = group.nodes.find((n)=> {
+    return n._id === fromId;
+  });
+
+  if (!node) {
+    console.error("getDescendants:: group does not contain fromId parameter:" + fromId + " : group:"+group.parent_id)
+    return descendents;
+  }
+  if (!node || !node.children || !node.children.length) return descendents;
+
+  descendents.add(fromId);
+
+  let stack:GingkoNode[] = stackGNodes;
+  let si = insertArrayContentsFromIdx(stack, node.children, 0);
+
+  while (--si >= 0) {
+    let n = stack[si];
+    if (!n) continue;
+
+    if (n.children && n.children.length) {
+      descendents.add(n._id);
+      si = insertArrayContentsFromIdx(stack, n.children, si);
+    }
+  }
+  return descendents;
+}
+
+const ANCESTORS:Set<string> = new Set();
+/**
+ *
+ * @param fromId
+ * @param group
+ * @param columnGroups
+ * @param colIdx
+ * @return Set of card ids that are ancestors to a given node 'fromId'
+ */
+export function getAncestors(fromId: string,  group:GingkoTreeGroup, columnGroups:GingkoTreeGroup[][], colIdx:number):Set<string> {
+  const ancestors = ANCESTORS;
+  ancestors.clear();
+  let node = group.nodes.find((n)=> {
+    return n._id === fromId;
+  });
+
+  while(--colIdx >= 0) {
+    /*
+    columnGroups[colIdx].find((g)=> {
+
+    });
+    */
+  }
+  return ancestors;
 }
 
 /**
@@ -188,6 +254,7 @@ export function getColumns(tree:GingkoTree):GingkoNode[][] {
 //console.log(JSON.stringify(getColumnGroups(tree))=== JSON.stringify(getColumnGroups2(tree)));
 //console.log(JSON.stringify(getColumnGroups(tree))=== JSON.stringify(getColumnGroups2(tree)));
 
+// array-based shift queue for BFS
  export function getColumnGroups2(tree:GingkoTree):GingkoTreeGroup[][] {
   let groups:GingkoTreeGroup[][] = [[]];
   let queue:GingkoTreeGroup[] = [{nodes:tree, parent_id:''}];

@@ -1637,6 +1637,13 @@ span.trial-dark {
   background-color: var(--tree-bg-2);
   margin-bottom: 2px;
 }
+.card > .view {
+  pointer-events:none;
+}
+.card.active > .view {
+  pointer-events:auto;
+}
+
 .card:last-child {
   margin-bottom: 0;
 }
