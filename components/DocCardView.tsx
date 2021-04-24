@@ -10,7 +10,6 @@ import rehypeKatex from 'rehype-katex'
 const DocCardView: FunctionComponent<{content: string}> = memo((props) => {
 
   const containerRef = useRef<HTMLDivElement>(null);
-
 	useEffect(()=>{
     if (containerRef && containerRef.current) {
       containerRef.current.querySelectorAll('a').forEach((a)=>{

@@ -1,4 +1,4 @@
-import { FunctionComponent, SyntheticEvent, useEffect, useState } from "react";
+import { FunctionComponent, useEffect, useState } from "react";
 import { GingkoTree, getColumnGroups, getDescendantGrpIds, getAncestors,
   ACTIVE_ANCESTORS, ACTIVE_DESCENDANTS, GingkoTreeGroup } from "../shared/util/gingko";
 import DocCard from "./DocCard";
@@ -7,13 +7,14 @@ if (typeof window !== 'undefined') {
 }
 interface DocProps {
   readonly tree: GingkoTree,
-  readonly hostCardId?: string
+  readonly hostCardId?: string,
+  readonly hostCallback?: (string)=>void;
 }
 
 var LAST_TREE_COLUMNS:GingkoTreeGroup[][] = [];
 var LAST_TREE:GingkoTree;
 
-const Doc: FunctionComponent<DocProps> = ({tree, hostCardId}) => {
+const Doc: FunctionComponent<DocProps> = ({tree, hostCardId, hostCallback}) => {
 
   const columnGroups = LAST_TREE !== tree ? getColumnGroups(tree) : LAST_TREE_COLUMNS;
   LAST_TREE_COLUMNS = columnGroups;
@@ -21,12 +22,6 @@ const Doc: FunctionComponent<DocProps> = ({tree, hostCardId}) => {
 
   const usingHost = hostCardId !== undefined;
 
-  /*
-  group.has-active
-  group active-descendant
-  card ancestor
-  card active
-  */
   const [selectedCardId, setSelectedCardId] = useState('');
   const [selectedColumn, setSelectedColumn] = useState(-2);
   const [selectedGroupIdx, setSelectedGroupIdx] = useState(-2);
@@ -37,12 +32,26 @@ const Doc: FunctionComponent<DocProps> = ({tree, hostCardId}) => {
     if (cardId === null) {
       return;
     }
+    if (cardId === selectedCardId) {
+      // scroll back again if under viewing
+
+      return;
+    }
+    const remoteTrigger = !(e.nativeEvent instanceof MouseEvent);
+    if (remoteTrigger) e.nativeEvent.stopPropagation();
+    else if (hostCallback) {
+      hostCallback(cardId);
+      return;
+    }
+
     let groupElem:HTMLElement = e.currentTarget;
     let colElem = groupElem.parentElement;
 
     let colIdx = colElem ? parseInt(colElem.getAttribute('data-idx') || '-1') : -2;
     let groupIdx = groupElem ? parseInt(groupElem.getAttribute('data-idx') || '-1') : -2;
     let group = columnGroups[colIdx][groupIdx];
+
+    console.log(remoteTrigger, cardId, colIdx, groupIdx);
 
     setSelectedCardId(cardId);
     setSelectedColumn(colIdx);
@@ -52,13 +61,34 @@ const Doc: FunctionComponent<DocProps> = ({tree, hostCardId}) => {
     getAncestors(cardId, group, columnGroups, colIdx);
   }
 
-  useEffect(() => {
-    let cardId = selectedCardId;
-    if (cardId) { // !hostCardId &&  (unless host lock?)
-      if (selectedColumn >= 0) scrollHorizontal(selectedColumn, false);
+  let navigated = false;
+  // Prioritize host card Id navigation if any
+  useEffect(()=> {
+    if (!hostCardId) return;
+    navigated = true;
+    let elem = document.getElementById('card-'+hostCardId);
+    if (elem) {
+      navigated = true;
+      elem.dispatchEvent(new Event('click', {bubbles: true}));
     }
-  }, [selectedCardId])
+  }, [hostCardId]);
 
+  if (!navigated) {
+    useEffect(() => {
+      let cardId = selectedCardId;
+      if (cardId) { // !hostCardId &&  (unless host lock?)
+        if (selectedColumn >= 0) scrollHorizontal(selectedColumn, false);
+      }
+    }, [selectedCardId]);
+  }
+
+
+  /*
+  group.has-active
+  group active-descendant
+  card ancestor
+  card active
+  */
   return (
   <div id="document">
     <div className="left-padding-column" />

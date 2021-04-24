@@ -4,7 +4,7 @@ import { useUserID } from "../../shared/util/mockuser";
 import { useRouter } from 'next/router'
 import { getDetailsFromRoomId, getRoomIdFromDetails, getTreeIdFromRoomDetails } from "../../shared/util/room";
 import { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
-import { FunctionComponent } from "react";
+import { FunctionComponent, useEffect } from "react";
 import { GingkoTree, loadGingkoTree } from "../../shared/util/gingko";
 import { roomAuthFunction } from "../../shared/util/roomservice";
 

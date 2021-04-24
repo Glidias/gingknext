@@ -1,7 +1,6 @@
 
 import { NextApiRequest, NextApiResponse } from "next";
-// @ts-ignore
-import createClient from "@roomservice/node";
+
 import { getRoomIdFromDetails, newRoomDetails, RoomDetails } from "../../shared/util/room";
 const apiKey = process.env.ROOMSERVICE_API_KEY;
 
@@ -27,12 +26,12 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     return res.json({error: errCode})
   }
 
-  const rs = createClient(apiKey ? apiKey : '');
-
   const sessionPin:string | undefined = req.query.pin !== undefined ? (Math.floor(Math.random() * 90000) + 10000).toString() : undefined;
   const roomDetails:RoomDetails = newRoomDetails(userid.toString(), roomkey.toString(), treeid.toString());
   const roomId = getRoomIdFromDetails(roomDetails);
   if (sessionPin) {
+    const createClient = require("@roomservice/node");
+    const rs = createClient(apiKey ? apiKey : '');
     const checkpoint = await rs.checkpoint("lobby");
     const map = checkpoint.map("sessionPins");
     map.set('' + sessionPin, roomId);
@@ -43,4 +42,3 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     roomId
   });
 };
-
