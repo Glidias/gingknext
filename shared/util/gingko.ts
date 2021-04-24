@@ -107,8 +107,7 @@ const poolGTG: SLLPool<GingkoTreeGroup> = new SLLPool<GingkoTreeGroup>();
 function poolGTG_get(nodes, parent_id) {
   let res = poolGTG.get();
   if (res !== null) {
-    res.v.nodes = nodes;
-    res.v.parent_id = parent_id;
+    res.v = {nodes, parent_id}
     return res;
   }
   else return poolGTG.createNodeOf({nodes, parent_id});
@@ -126,6 +125,7 @@ export const ACTIVE_DESCENDANTS:Set<string> = new Set();
 export function getDescendantGrpIds (fromId: string, group:GingkoTreeGroup):Set<string> {
   const descendents = ACTIVE_DESCENDANTS;
   descendents.clear();
+
   let node = group.nodes.find((n)=> {
     return n._id === fromId;
   });
@@ -165,16 +165,19 @@ export const ACTIVE_ANCESTORS:Set<string> = new Set();
 export function getAncestors(fromId: string,  group:GingkoTreeGroup, columnGroups:GingkoTreeGroup[][], colIdx:number):Set<string> {
   const ancestors = ACTIVE_ANCESTORS;
   ancestors.clear();
-  let node = group.nodes.find((n)=> {
-    return n._id === fromId;
-  });
 
+  let curId = fromId;
   while(--colIdx >= 0) {
-    /*
-    columnGroups[colIdx].find((g)=> {
-
+    let anc:GingkoNode | undefined;
+    let colGroupFound = columnGroups[colIdx].find((g)=> {
+      return anc = g.nodes.find((n)=>{
+        return n.children && n.children.length && n.children.find(c => c._id === curId);
+      });
     });
-    */
+    if (colGroupFound && anc) {
+      curId = anc._id;
+      ancestors.add(curId);
+    } else break;
   }
   return ancestors;
 }

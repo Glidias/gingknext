@@ -10,11 +10,15 @@ interface DocCardProps {
 }
 
 const DocCard: FunctionComponent<DocCardProps> = ({node, activatedVector}) => {
+let activeClassStr = '';
+activeClassStr += activatedVector < 0 ? ' ancestor' : '';
+activeClassStr += activatedVector === 1 ? ' active' : '';
+activeClassStr += activatedVector === 2 ? ' host-active' : '';
 return <div
 	id={`card-${node._id}`}
   dir="auto"
   data-cardid={node._id}
-	className={`card${node.children && node.children.length ? ' has-children' : ''}${activatedVector !== 0 ? activatedVector > 0 ? ' active' : ' ancestor' : ''}`}
+	className={`card${node.children && node.children.length ? ' has-children' : ''}${activeClassStr}`}
 	draggable="true"
 >
   <DocCardView content={node.content}></DocCardView>

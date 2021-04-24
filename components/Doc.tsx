@@ -1,20 +1,25 @@
-import { FunctionComponent, useEffect, useState } from "react";
+import { FunctionComponent, SyntheticEvent, useEffect, useState } from "react";
 import { GingkoTree, getColumnGroups, getDescendantGrpIds, getAncestors,
   ACTIVE_ANCESTORS, ACTIVE_DESCENDANTS, GingkoTreeGroup } from "../shared/util/gingko";
 import DocCard from "./DocCard";
-
+if (typeof window !== 'undefined') {
+  var {scrollHorizontal} = require('../shared/util/doc-helpers');
+}
 interface DocProps {
   readonly tree: GingkoTree,
+  readonly hostCardId?: string
 }
 
 var LAST_TREE_COLUMNS:GingkoTreeGroup[][] = [];
 var LAST_TREE:GingkoTree;
 
-const Doc: FunctionComponent<DocProps> = ({tree}) => {
+const Doc: FunctionComponent<DocProps> = ({tree, hostCardId}) => {
 
   const columnGroups = LAST_TREE !== tree ? getColumnGroups(tree) : LAST_TREE_COLUMNS;
   LAST_TREE_COLUMNS = columnGroups;
   LAST_TREE = tree;
+
+  const usingHost = hostCardId !== undefined;
 
   /*
   group.has-active
@@ -38,15 +43,20 @@ const Doc: FunctionComponent<DocProps> = ({tree}) => {
     let colIdx = colElem ? parseInt(colElem.getAttribute('data-idx') || '-1') : -2;
     let groupIdx = groupElem ? parseInt(groupElem.getAttribute('data-idx') || '-1') : -2;
     let group = columnGroups[colIdx][groupIdx];
-    getDescendantGrpIds(cardId, group);
-    getAncestors(cardId, group, columnGroups, colIdx);
+
     setSelectedCardId(cardId);
     setSelectedColumn(colIdx);
     setSelectedGroupIdx(groupIdx);
+
+    getDescendantGrpIds(cardId, group);
+    getAncestors(cardId, group, columnGroups, colIdx);
   }
 
   useEffect(() => {
-
+    let cardId = selectedCardId;
+    if (cardId) { // !hostCardId &&  (unless host lock?)
+      if (selectedColumn >= 0) scrollHorizontal(selectedColumn, false);
+    }
   }, [selectedCardId])
 
   return (
@@ -64,7 +74,7 @@ const Doc: FunctionComponent<DocProps> = ({tree}) => {
             { g.nodes.map((n) =>
             <DocCard key={n._id}
               node={n}
-              activatedVector={selectedCardId === n._id ? 1 : ACTIVE_ANCESTORS.has(n._id) ? -1 : 0 }
+              activatedVector={usingHost && hostCardId === n._id ? 2 : selectedCardId === n._id ? 1 : ACTIVE_ANCESTORS.has(n._id) ? -1 : 0 }
             />
             )}
             </div>
