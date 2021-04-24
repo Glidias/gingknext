@@ -40,7 +40,6 @@ export function getDetailsFromRoomId(roomId:string, hostDetails:{userid:String, 
   if (hostDetails === null) {
     return newRoomDetails('', '', roomDetails[IDX_treeid]);
   }
-  console.log('verifying host details', hostDetails);
   return roomDetails[IDX_userid] === hostDetails.userid
    && roomDetails[IDX_roomkey] === hostDetails.roomkey
    && roomDetails[IDX_treeid] === hostDetails.treeid ?

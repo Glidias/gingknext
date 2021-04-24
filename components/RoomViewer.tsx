@@ -25,15 +25,24 @@ const RoomViewer: FunctionComponent<{
       useEffect(() => {
         if (!hostMap) return;
 
-        // 68a50d5830e1409aa4fd8db83dae82bc6aa962b0481d7895adea39a8221869d602
-        let userid = 'glenn'; // localStorage.getItem(LS_KEYS.userId) ||
-        let roomkey = '123'; //localStorage.getItem(LS_KEYS.roomKey) ||;
+        ///* To test dummy room
+        // /room/68a50d5830e1409aa4fd8db83dae82bc6aa962b0481d7895adea39a8221869d602
+        let userid = 'glenn'; // localStorage.getItem(LS_KEYS.userId) || '';
+        let roomkey = '123'; //localStorage.getItem(LS_KEYS.roomKey) || '';
+        //*/
 
-        (async () => {
-          const hc = await hostSessionCheck ({roomid:roomid+'', roomkey, userid, treeid});
-          setIsHost(hc.host);
-          hostMap.set('cardId', ''); // todo: initially saved cardId from LS
-        })();
+        /*
+        let userid = localStorage.getItem(LS_KEYS.userId);
+        let roomkey = localStorage.getItem(LS_KEYS.roomKey);
+        */
+
+        if (roomkey && userid) {
+          (async () => {
+            const hc = await hostSessionCheck ({roomid, roomkey, userid, treeid});
+            setIsHost(hc.host);
+            hostMap.set('cardId', ''); // todo: initially saved cardId from LS
+          })();
+        }
       }, [hostMap]);
     }
 
@@ -48,9 +57,8 @@ const RoomViewer: FunctionComponent<{
     */
 
     return (
-
       room && treedata ?
-        <Doc tree={treedata} hostCardId={!enforceNoHost ? host.cardId : ''} hostCallback={isHost ? doHostSelectCard : undefined}></Doc>
+        <Doc tree={treedata} hostCardId={host.cardId} hostCallback={isHost ? doHostSelectCard : undefined}></Doc>
       :
         <div>
           Loading room data..

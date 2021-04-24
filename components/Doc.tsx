@@ -34,14 +34,15 @@ const Doc: FunctionComponent<DocProps> = ({tree, hostCardId, hostCallback}) => {
     }
     if (cardId === selectedCardId) {
       // scroll back again if under viewing
-
       return;
     }
     const remoteTrigger = !(e.nativeEvent instanceof MouseEvent);
-    if (remoteTrigger) e.nativeEvent.stopPropagation();
+    if (remoteTrigger) {
+      e.nativeEvent.stopPropagation();
+      if (hostCallback) return;
+    }
     else if (hostCallback) {
       hostCallback(cardId);
-      return;
     }
 
     let groupElem:HTMLElement = e.currentTarget;
@@ -51,7 +52,7 @@ const Doc: FunctionComponent<DocProps> = ({tree, hostCardId, hostCallback}) => {
     let groupIdx = groupElem ? parseInt(groupElem.getAttribute('data-idx') || '-1') : -2;
     let group = columnGroups[colIdx][groupIdx];
 
-    //console.log(remoteTrigger, cardId, colIdx, groupIdx);
+    // console.log(remoteTrigger, cardId, colIdx, groupIdx);
 
     setSelectedCardId(cardId);
     setSelectedColumn(colIdx);
@@ -61,28 +62,23 @@ const Doc: FunctionComponent<DocProps> = ({tree, hostCardId, hostCallback}) => {
     getAncestors(cardId, group, columnGroups, colIdx);
   }
 
-  let navigated = false;
-  // Prioritize host card Id navigation if any
+  useEffect(() => {
+    let cardId = selectedCardId;
+    if (cardId) { // !hostCardId &&  (unless host lock?)
+      if (selectedColumn >= 0) scrollHorizontal(selectedColumn, false);
+    }
+  }, [selectedCardId]);
+
   useEffect(()=> {
     if (!hostCardId) return;
-    navigated = true;
     let elem = document.getElementById('card-'+hostCardId);
     if (elem) {
-      navigated = true;
       elem.dispatchEvent(new Event('click', {bubbles: true}));
     }
   }, [hostCardId]);
 
 
-    useEffect(() => {
-      let cardId = selectedCardId;
-      if (cardId) { // !hostCardId &&  (unless host lock?)
-        if (selectedColumn >= 0) scrollHorizontal(selectedColumn, false);
-      }
-    }, [selectedCardId]);
-
-
-  // TODO performance: fix multiple rendering cycles issue for hosting session for client
+  // Max 2 rendering cycle for callback method for hoster using hostCallback.
   // console.log(selectedCardId, selectedColumn, selectedGroupIdx);
 
   /*
