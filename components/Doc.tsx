@@ -51,7 +51,7 @@ const Doc: FunctionComponent<DocProps> = ({tree, hostCardId, hostCallback}) => {
     let groupIdx = groupElem ? parseInt(groupElem.getAttribute('data-idx') || '-1') : -2;
     let group = columnGroups[colIdx][groupIdx];
 
-    console.log(remoteTrigger, cardId, colIdx, groupIdx);
+    //console.log(remoteTrigger, cardId, colIdx, groupIdx);
 
     setSelectedCardId(cardId);
     setSelectedColumn(colIdx);
@@ -73,15 +73,17 @@ const Doc: FunctionComponent<DocProps> = ({tree, hostCardId, hostCallback}) => {
     }
   }, [hostCardId]);
 
-  if (!navigated) {
+
     useEffect(() => {
       let cardId = selectedCardId;
       if (cardId) { // !hostCardId &&  (unless host lock?)
         if (selectedColumn >= 0) scrollHorizontal(selectedColumn, false);
       }
     }, [selectedCardId]);
-  }
 
+
+  // TODO performance: fix multiple rendering cycles issue for hosting session for client
+  // console.log(selectedCardId, selectedColumn, selectedGroupIdx);
 
   /*
   group.has-active

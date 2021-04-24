@@ -1,3 +1,7 @@
+/**
+ * @author AdrianoFerrari
+ */
+
 const _ = require("lodash");
 const { TweenMax, Power2 } = require("gsap");
 
@@ -95,7 +99,6 @@ var scrollHorizTo = function (colIdx, instant) {
   var col = document.getElementById("ginkcolumn-" + colIdx);
   var appEl = document.getElementById("document");
 
-
   let scrollDoneCallback = () => {};
   if (!instant) {
     /* Remove CSS scroll-snap behavior, otherwise won't animate */
@@ -107,6 +110,7 @@ var scrollHorizTo = function (colIdx, instant) {
     console.log("scroll horiz error: not found", colIdx);
     return;
   }
+
   TweenMax.to(appEl, scrollDuration, {
     scrollLeft: col.offsetLeft + 0.5  * (col.offsetWidth - appEl.offsetWidth),
     ease: Power2.easeInOut,

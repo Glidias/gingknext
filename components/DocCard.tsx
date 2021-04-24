@@ -12,7 +12,7 @@ interface DocCardProps {
 const DocCard: FunctionComponent<DocCardProps> = ({node, activatedVector}) => {
 let activeClassStr = '';
 activeClassStr += activatedVector < 0 ? ' ancestor' : '';
-activeClassStr += activatedVector === 1 ? ' active' : '';
+activeClassStr += activatedVector > 0 ? ' active' : '';
 activeClassStr += activatedVector === 2 ? ' host-active' : '';
 return <div
 	id={`card-${node._id}`}

@@ -43,7 +43,7 @@ export async function getServerSideProps(context:GetServerSidePropsContext):Prom
 
 const Room: FunctionComponent<RoomProps> = (props) => {
   const router = useRouter();
-  const { roomid } = router.query;
+  const { roomid, nohost } = router.query;
   const userID = useUserID();
 
   return (
@@ -57,7 +57,7 @@ const Room: FunctionComponent<RoomProps> = (props) => {
       },
     }}
    >
-      <RoomViewer treedata={props.treeData} treeid={props.treeId} roomid={roomid ? roomid + '' : ''}></RoomViewer>
+      <RoomViewer enforceNoHost={nohost!==undefined} treedata={props.treeData} treeid={props.treeId} roomid={roomid ? roomid + '' : ''}></RoomViewer>
     </RoomServiceProvider>
   );
 };
