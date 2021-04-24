@@ -11,27 +11,31 @@ import { hostSessionCheck } from "../shared/api/host-check";
 const RoomViewer: FunctionComponent<{
   readonly roomid: string,
   readonly treeid: string,
-  readonly treedata: GingkoTree | null
+  readonly treedata: GingkoTree | null,
+  readonly enforceNoHost?: boolean
 }> =
-({roomid, treeid, treedata}) => {
+({roomid, treeid, treedata, enforceNoHost}) => {
 
   if (roomid && treeid) {
     const room = useRoom(roomid);
     const [host, hostMap] = useMap<{cardId: string}>(roomid, 'hostMap');
     const [isHost, setIsHost] = useState(false);
     // validate local computer has host access via api see if it matches roomid
-    useEffect(() => {
-      if (!hostMap) return;
-      let userid = 'glenn'; // localStorage.getItem(LS_KEYS.userId) ||
-      let roomkey = '123'; //localStorage.getItem(LS_KEYS.roomKey) ||;
+    if (!enforceNoHost) {
+      useEffect(() => {
+        if (!hostMap) return;
 
-      (async () => {
-        const hc = await hostSessionCheck ({roomid:roomid+'', roomkey, userid, treeid});
-        setIsHost(hc.host);
-        hostMap.set('cardId', ''); // todo: initially saved cardId from LS
-      })();
-    }, [hostMap]);
+        // 68a50d5830e1409aa4fd8db83dae82bc6aa962b0481d7895adea39a8221869d602
+        let userid = 'glenn'; // localStorage.getItem(LS_KEYS.userId) ||
+        let roomkey = '123'; //localStorage.getItem(LS_KEYS.roomKey) ||;
 
+        (async () => {
+          const hc = await hostSessionCheck ({roomid:roomid+'', roomkey, userid, treeid});
+          setIsHost(hc.host);
+          hostMap.set('cardId', ''); // todo: initially saved cardId from LS
+        })();
+      }, [hostMap]);
+    }
 
     const doHostSelectCard = (cardId) => {
       hostMap?.set('cardId', cardId);
@@ -44,16 +48,13 @@ const RoomViewer: FunctionComponent<{
     */
 
     return (
-    <div>
-      {
+
       room && treedata ?
-        <Doc tree={treedata} hostCardId={host.cardId} hostCallback={isHost ? doHostSelectCard : undefined}></Doc>
+        <Doc tree={treedata} hostCardId={!enforceNoHost ? host.cardId : ''} hostCallback={isHost ? doHostSelectCard : undefined}></Doc>
       :
         <div>
           Loading room data..
         </div>
-      }
-    </div>
     );
   }
   else {
