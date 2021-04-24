@@ -1,8 +1,6 @@
 
 import { NextApiRequest, NextApiResponse } from "next";
-import { getDetailsFromRoomId, getRoomIdFromDetails, newRoomDetails, RoomDetails } from "../../shared/util/room";
-import URI from 'urijs';
-
+import { getDetailsFromRoomId } from "../../shared/util/room";
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   let errCode = 0;
 
