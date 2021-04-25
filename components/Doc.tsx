@@ -66,7 +66,7 @@ const Doc: FunctionComponent<DocProps> = ({tree, hostCardId, hostCallback}) => {
 
     let setIds = getDescendantGrpIds(cardId, group);
 
-    setIds = getAncestors(cardId, group, columnGroups, colIdx);
+    setIds = getAncestors(cardId, columnGroups, colIdx);
   }
 
   useEffect(() => {
@@ -75,7 +75,7 @@ const Doc: FunctionComponent<DocProps> = ({tree, hostCardId, hostCallback}) => {
       // https://github.com/gingko/client/blob/e15ffdee2f99672f08f6bfe5f2f00310822e9129/src/shared/doc.js#L453  // ScrollCards:
       if (selectedColumn >= 0) scrollHorizontal(selectedColumn, false);
       if (scrollData) {
-        updateScrollDataPositionsFor__(scrollData, cardId, selectedColumn)
+        updateScrollDataPositionsFor__(scrollData, cardId, selectedColumn, columnGroups[selectedColumn][selectedGroupIdx], columnGroups)
         scrollColumns(scrollData);
       }
     }

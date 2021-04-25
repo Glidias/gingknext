@@ -26,7 +26,8 @@ export interface ColumnsScrollData {
   columns:{
     scrollData:{
       target:string,
-      position:"Center"|"After"|"Before"|"Between"
+      position:"Center"|"After"|"Before"|"Between",
+      prevGroupId?:string
     }
   }[]
 }
@@ -51,14 +52,14 @@ export function getDocScrnHeight__() {
 }
 
 export function newScrollData__(instant:boolean=false, columnGroups:GingkoTreeGroup[][]):ColumnsScrollData {
-  let scrnHeight = getDocScrnHeight__();
+  const scrnHeight = getDocScrnHeight__();
   return {
     instant,
     columns: columnGroups.map((grps)=> {
       let targetId = grps[0] && grps[0].nodes[0] ? grps[0].nodes[0]._id : '';
       let elemId = 'card-' + targetId;
       let elem = document.getElementById(elemId);
-      if (!elem) console.log('newScrollData__:: element not found!! id:'+elemId);
+      if (!elem) console.error('newScrollData__:: element not found!! id:'+elemId);
       return {
         scrollData: {
           target: targetId,
@@ -76,18 +77,23 @@ export function updateScrollDataPositions__(colsScrollData:ColumnsScrollData):vo
     let grps = colsScrollData.columns[i];
     let elemId = 'card-' + grps.scrollData.target;
     let elem = document.getElementById(elemId);
-    if (!elem) console.log('updateScrollDataPositions__:: element not found!! id:'+elemId);
+    if (!elem) console.error('updateScrollDataPositions__:: element not found!! id:'+elemId);
     grps.scrollData.position =  (elem ? elem.clientHeight : 0) > scrnHeight ? 'Before' : 'Center';
   }
 }
 
+var __lastDocScreenHeight__:number;
 /**
  * @param colsScrollData  The current scroll column data being used
- * @param cardId  The selected card
+ * @param cardId  The selected card id
  * @param colIndex  The column index belonging to selected card
+ * @param group The group reference assosiated with the selected card id
+ * @param columnGroups Entire gridded list of column groups from getColumnGroups(...)
  */
-export function updateScrollDataPositionsFor__(colsScrollData:ColumnsScrollData, cardId: string, colIndex:number):void {
-  let scrnHeight = getDocScrnHeight__();
+export function updateScrollDataPositionsFor__(colsScrollData:ColumnsScrollData, cardId: string, colIndex:number, group:GingkoTreeGroup, columnGroups:GingkoTreeGroup[][]):void {
+  const scrnHeight = getDocScrnHeight__();
+  const scrnHeightChanged = scrnHeight !== __lastDocScreenHeight__;
+  __lastDocScreenHeight__ = scrnHeight;
   let count = 0;
 
   /**
@@ -97,38 +103,68 @@ export function updateScrollDataPositionsFor__(colsScrollData:ColumnsScrollData,
   function processAnc(cardId:string) {
     count--;
     let curColData = colsScrollData.columns[count].scrollData
-    if (curColData.target !== cardId) {
+    if (curColData.target !== cardId || scrnHeightChanged) {
       curColData.target = cardId;
       let elemId = 'card-' + cardId;
       let elem = document.getElementById(elemId);
-      if (!elem) console.log('updateScrollDataPositionsFor__:: element not found!! id:'+elemId);
+      if (!elem) console.error('updateScrollDataPositionsFor__ANC:: element not found!! id:'+elemId);
       curColData.position = (elem ? elem.clientHeight : 0) > scrnHeight ? 'Before' : 'Center';
     }
   }
   count = colIndex;
   ACTIVE_ANCESTORS.forEach(processAnc);
+  // For descendants
+  function findNode(n) {
+    return n._id === cardId;
+  }
+  let curNode: GingkoNode | null | undefined = group.nodes.find(findNode);
+  count = colIndex + 1;
+  // const len = colsScrollData.columns.length;
+  while (curNode && curNode.children && curNode.children.length) { //  && count < len
+    let cGroupId = curNode._id;
+    let curColData = colsScrollData.columns[count].scrollData;
+    let invalidatedGroup = cGroupId !== curColData.prevGroupId;
+    if (invalidatedGroup || scrnHeightChanged) {
+      curColData.prevGroupId = cGroupId;
+      curColData.target = invalidatedGroup ?
+        curNode.children[0]._id // if group changes, switch to first child of group
+        : curColData.target; // keep same target to recalculate if group remains the same
+      let elemId = 'card-' + curColData.target;
+      let elem = document.getElementById(elemId);
+      if (!elem) console.error('updateScrollDataPositionsFor__DESC:: element not found!! id:'+elemId);
+      curColData.position = (elem ? elem.clientHeight : 0) > scrnHeight ? 'Before' : 'Center';
 
-  /**
-   * all ACTIVE_DESCENDANTS column positions must be checked/updated
-   * @param groupId
-   */
-  function processDesc(groupId:string) {
-    if (count === colIndex) {
-      count++;
-      return;
+      // note: there is a "faster"/sniffier method via dom query/parent and specific dom attribute convention (data-idx attribute) to derive the group
+      // rather than search from top to bottom of entire column...but isnt't used here.
+      let dsc: GingkoNode | undefined;
+      let colGroupFound = columnGroups[count].find((g)=> {
+        return dsc = g.nodes.find((n)=>{
+          return n._id === curColData.target;
+        });
+      });
+      if (colGroupFound && dsc) {
+        if ((!dsc.children || !dsc.children.length)) { // for found descendant item, if no children available,
+          dsc = colGroupFound.nodes.find((n)=> { // find first available node containing children under colGroupFround to recurse further in
+            return n.children && n.children.length;
+          });
+        }
+        curNode = dsc;
+      } else {
+        console.error("updateScrollDataPositionsFor__DESC:: failed to find column id for next target:"+curColData.target)
+        curNode = null;
+      };
+    } else {
+      curNode = null;
     }
     count++;
-    // let curColData = colsScrollData.columns[count].scrollData
   }
-  count = colIndex; // manual index counter
-  ACTIVE_DESCENDANTS.forEach(processDesc);
 
   // assumed always changed: current card position for current column to update
   let curColData = colsScrollData.columns[colIndex].scrollData;
   curColData.target = cardId;
   let elemId = 'card-' + cardId;
   let elem = document.getElementById(elemId);
-  if (!elem) console.log('updateScrollDataPositionsFor__:: element not found!! id:'+elemId);
+  if (!elem) console.error('updateScrollDataPositionsFor__current:: element not found!! id:'+elemId);
   curColData.position = (elem ? elem.clientHeight : 0) > scrnHeight ? 'Before' : 'Center';
 }
 
@@ -220,8 +256,6 @@ function cleanNodeChildren(node:GingkoNode):void {
 
 // -- https://github.com/gingko/client/blob/95a3461d0648f21da49ab5c63b1a0365a3e9256a/src/elm/Doc/TreeUtils.elm
 
-// getChildren~, getDescendants, getColumns!, getParent, getAncestors  ,
-
 const poolGTG: SLLPool<GingkoTreeGroup> = new SLLPool<GingkoTreeGroup>();
 function poolGTG_get(nodes, parent_id) {
   let res = poolGTG.get();
@@ -239,7 +273,7 @@ export const ACTIVE_DESCENDANTS:Set<string> = new Set();
  * Modifies global state of active descendants, setting up groups ids in ascending column index order
  * @param fromId The selected card's id
  * @param group The group assosiated with the selected card from columnGroups
- * @return {ACTIVE_DESCENDANTS} Set of descendant group ids (ie. cardIds with children) under a given node 'fromId' including current group id for selected card fromId
+ * @return {ACTIVE_DESCENDANTS} Set of descendant group ids (ie. cardIds with children) under a given node 'fromId' **including current group id for selected card fromId**
  */
 export function getDescendantGrpIds (fromId: string, group:GingkoTreeGroup):Set<string> {
   const descendents = ACTIVE_DESCENDANTS;
@@ -278,12 +312,11 @@ export const ACTIVE_ANCESTORS:Set<string> = new Set();
 /**
  * Modifies global state of active ancestors, setting up card ids in descending column index order
  * @param fromId  The selected card's id
- * @param group The group assosiated with the selected card from columnGroups
  * @param columnGroups The reference to the saved column groups
  * @param colIdx The column index assosiated with the selected card from columnGroups
  * @return {ACTIVE_ANCESTORS} Set of group parent_ids that are ancestors to a given node 'fromId'
  */
-export function getAncestors(fromId: string,  group:GingkoTreeGroup, columnGroups:GingkoTreeGroup[][], colIdx:number):Set<string> {
+export function getAncestors(fromId: string, columnGroups:GingkoTreeGroup[][], colIdx:number):Set<string> {
   const ancestors = ACTIVE_ANCESTORS;
   ancestors.clear();
 
@@ -301,7 +334,6 @@ export function getAncestors(fromId: string,  group:GingkoTreeGroup, columnGroup
       ancestors.add(curId);
     } else break;
   }
-  console.log(ancestors);
   return ancestors;
 }
 
