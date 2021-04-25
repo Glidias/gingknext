@@ -1,7 +1,7 @@
 
 import { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
 import Doc from "../components/Doc";
-import { GingkoNode, loadGingkoTree } from "../shared/util/gingko";
+import { GingkoNode, _loadGingkoTree } from "../shared/util/gingko";
 
 interface TreeProps {
   tree: GingkoNode[] | null,
@@ -10,7 +10,7 @@ interface TreeProps {
 
 export async function getServerSideProps(context:GetServerSidePropsContext):Promise<GetServerSidePropsResult<TreeProps>> {
   const treeid = context.query.treeid ? ''+context.query.treeid : '';
-  let result = await loadGingkoTree(treeid);
+  let result = await _loadGingkoTree(treeid);
   return {
     props: {
       tree: result,

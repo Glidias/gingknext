@@ -5,7 +5,7 @@ import { useRouter } from 'next/router'
 import { getDetailsFromRoomId, getRoomIdFromDetails, getTreeIdFromRoomDetails } from "../../shared/util/room";
 import { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
 import { FunctionComponent, useEffect } from "react";
-import { GingkoTree, loadGingkoTree } from "../../shared/util/gingko";
+import { GingkoTree, _loadGingkoTree } from "../../shared/util/gingko";
 import { roomAuthFunction } from "../../shared/util/roomservice";
 
 interface RoomProps {
@@ -23,7 +23,7 @@ export async function getServerSideProps(context:GetServerSidePropsContext):Prom
   }
   let treeData:GingkoTree | null = null;
   if (treeId) {
-    let result = await loadGingkoTree(treeId);
+    let result = await _loadGingkoTree(treeId);
     if (result && result.length !== 0) {
       treeData = result;
     } else {
@@ -43,7 +43,7 @@ export async function getServerSideProps(context:GetServerSidePropsContext):Prom
 
 const Room: FunctionComponent<RoomProps> = (props) => {
   const router = useRouter();
-  const { roomid, nohost } = router.query;
+  const { roomid, nohost } = router.query; // '?nohost' in url to simulate non-host (client).
   const userID = useUserID();
 
   return (

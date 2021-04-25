@@ -1,9 +1,9 @@
 import { FunctionComponent, useEffect, useMemo, useState } from "react";
 import { GingkoTree, getColumnGroups, getDescendantGrpIds, getAncestors,
-  ACTIVE_ANCESTORS, ACTIVE_DESCENDANTS, GingkoTreeGroup } from "../shared/util/gingko";
+  ACTIVE_ANCESTORS, ACTIVE_DESCENDANTS, newScrollData, updateScrollDataPositions__, updateScrollDataPositionsFor__ } from "../shared/util/gingko";
 import DocCard from "./DocCard";
 if (typeof window !== 'undefined') {
-  var {scrollHorizontal} = require('../shared/util/doc-helpers');
+  var {scrollHorizontal, scrollColumns} = require('../shared/util/doc-helpers');
 }
 interface DocProps {
   readonly tree: GingkoTree,
@@ -13,7 +13,7 @@ interface DocProps {
 
 const Doc: FunctionComponent<DocProps> = ({tree, hostCardId, hostCallback}) => {
 
-  const columnGroups = useMemo(()=>getColumnGroups(tree), [tree])
+  const columnGroups = useMemo(()=>getColumnGroups(tree), [tree]);
 
   const usingHost = hostCardId !== undefined;
 
@@ -21,6 +21,18 @@ const Doc: FunctionComponent<DocProps> = ({tree, hostCardId, hostCallback}) => {
   const [selectedColumn, setSelectedColumn] = useState(-2);
   const [selectedGroupIdx, setSelectedGroupIdx] = useState(-2);
 
+  // Initialize default scrolling data for new document
+  const scrollData = useMemo(()=>{
+    // consider: true for instant for initial start?
+    // consider: save scrollData in local storage to maintain scroll upon refresh?
+    return newScrollData(false, columnGroups);
+  }, []); // tree ? may need a versioning parameter eg. treeDoc.version for: {tree:GingkoTree, version:number}
+
+  useEffect(()=>{
+    if (scrollData) updateScrollDataPositions__(scrollData);
+  }, [scrollData]);
+
+  // Capture clicking of cards under group (event bubbled)
   function clickGroupHandler(e) {
     let targElem:HTMLElement = e.target;
     let cardId = targElem.getAttribute('data-cardid');
@@ -34,10 +46,11 @@ const Doc: FunctionComponent<DocProps> = ({tree, hostCardId, hostCallback}) => {
     const remoteTrigger = !(e.nativeEvent instanceof MouseEvent);
     if (remoteTrigger) {
       e.nativeEvent.stopPropagation();
-      if (hostCallback) return;
+      if (hostCallback) return; // for single host, assumed host has already triggered stuff locally on his local computer and doesn't need to reset data
     }
     else if (hostCallback) {
       hostCallback(cardId);
+      // return; // for multiple host switching support? (not optimized render call+1), but Not part of feature plan.
     }
 
     let groupElem:HTMLElement = e.currentTarget;
@@ -47,22 +60,24 @@ const Doc: FunctionComponent<DocProps> = ({tree, hostCardId, hostCallback}) => {
     let groupIdx = groupElem ? parseInt(groupElem.getAttribute('data-idx') || '-1') : -2;
     let group = columnGroups[colIdx][groupIdx];
 
-    // console.log(remoteTrigger, cardId, colIdx, groupIdx);
-
     setSelectedCardId(cardId);
     setSelectedColumn(colIdx);
     setSelectedGroupIdx(groupIdx);
 
-    getDescendantGrpIds(cardId, group);
-    getAncestors(cardId, group, columnGroups, colIdx);
+    let setIds = getDescendantGrpIds(cardId, group);
+
+    setIds = getAncestors(cardId, group, columnGroups, colIdx);
   }
 
-  // https://github.com/gingko/client/blob/e15ffdee2f99672f08f6bfe5f2f00310822e9129/src/shared/doc.js#L453  // ScrollCards:
   useEffect(() => {
     let cardId = selectedCardId;
     if (cardId) { // !hostCardId &&  (unless host lock?)
-
+      // https://github.com/gingko/client/blob/e15ffdee2f99672f08f6bfe5f2f00310822e9129/src/shared/doc.js#L453  // ScrollCards:
       if (selectedColumn >= 0) scrollHorizontal(selectedColumn, false);
+      if (scrollData) {
+        updateScrollDataPositionsFor__(scrollData, cardId, selectedColumn)
+        scrollColumns(scrollData);
+      }
     }
   }, [selectedCardId]);
 
@@ -73,6 +88,8 @@ const Doc: FunctionComponent<DocProps> = ({tree, hostCardId, hostCallback}) => {
       elem.dispatchEvent(new Event('click', {bubbles: true}));
     }
   }, [hostCardId]);
+
+  // console.log(selectedCardId, selectedGroupIdx, selectedColumn);
 
   return (
   <div id="document">

@@ -1,5 +1,6 @@
 /**
  * @author AdrianoFerrari
+ * @author Glidias
  */
 
 const _ = require("lodash");
@@ -31,8 +32,11 @@ var scrollHorizontal = (colIdx, instant) => {
   _.delay(scrollHorizTo, 20, colIdx, instant);
 };
 
+/**
+ * @param {require("./gingko.ts").ColumnsScrollData} // doesn't work
+ */
 var scrollColumns = (scrollInfo) => {
-  scrollInfo.columns.map(column => {
+  scrollInfo.columns.forEach((column, index) => {
     let positionParam;
     switch (column.scrollData.position) {
       case "Center":
@@ -51,7 +55,7 @@ var scrollColumns = (scrollInfo) => {
         positionParam = "bottom"
         break;
     }
-    _.delay(scrollTo, 20, column.scrollData.target, column.columnIdx, scrollInfo.instant, positionParam);
+    _.delay(scrollTo, 20, column.scrollData.target, index, scrollInfo.instant, positionParam);
   });
 }
 

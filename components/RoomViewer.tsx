@@ -12,6 +12,7 @@ const RoomViewer: FunctionComponent<{
   readonly roomid: string,
   readonly treeid: string,
   readonly treedata: GingkoTree | null,
+  /** Enforce no host to always simulate client, specifically for local machine */
   readonly enforceNoHost?: boolean
 }> =
 ({roomid, treeid, treedata, enforceNoHost}) => {
@@ -49,12 +50,6 @@ const RoomViewer: FunctionComponent<{
     const doHostSelectCard = useCallback((cardId) => {
       hostMap?.set('cardId', cardId);
     }, [hostMap]);
-
-    /*
-    useEffect(() => {
-      if (!room) return;
-    }, [room]);
-    */
 
     return (
       room && treedata ?
