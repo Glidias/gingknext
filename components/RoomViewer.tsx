@@ -1,6 +1,6 @@
 import { useMap, useRoom, useList} from "@roomservice/react";
 import Doc from "./Doc";
-import { FunctionComponent, useEffect, useState } from 'react'
+import { FunctionComponent, useCallback, useEffect, useState } from 'react'
 import { GingkoTree } from "../shared/util/gingko";
 import { LS_KEYS } from "../shared/constants";
 import { hostSessionCheck } from "../shared/api/host-check";
@@ -46,9 +46,9 @@ const RoomViewer: FunctionComponent<{
       }, [hostMap]);
     }
 
-    const doHostSelectCard = (cardId) => {
+    const doHostSelectCard = useCallback((cardId) => {
       hostMap?.set('cardId', cardId);
-    };
+    }, []);
 
     /*
     useEffect(() => {

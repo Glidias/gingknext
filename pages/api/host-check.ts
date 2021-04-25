@@ -1,6 +1,7 @@
 
 import { NextApiRequest, NextApiResponse } from "next";
 import { getDetailsFromRoomId } from "../../shared/util/room";
+
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   let errCode = 0;
 

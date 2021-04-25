@@ -1,6 +1,6 @@
 import { DOMAIN } from '../constants';
 import SLLPool, { SLLPoolNode } from '../ds/SLLPool';
-import { insertArrayContentsFromIdx, pushArrayWith } from './common-helpers';
+import { insertArrayContentsFromIdx } from './common-helpers';
 
 export interface GingkoNode {
 	content:string,
@@ -120,15 +120,17 @@ export const ACTIVE_DESCENDANTS:Set<string> = new Set();
  *
  * @param fromId
  * @param group
- * @return Set of descendant group ids (ie. cardIds with children) under a given node 'fromId'
+ * @return [Static reference] Set of descendant group ids (ie. cardIds with children) under a given node 'fromId'
  */
 export function getDescendantGrpIds (fromId: string, group:GingkoTreeGroup):Set<string> {
   const descendents = ACTIVE_DESCENDANTS;
   descendents.clear();
 
-  let node = group.nodes.find((n)=> {
+  function findNode(n) {
     return n._id === fromId;
-  });
+  }
+
+  let node = group.nodes.find(findNode);
 
   if (!node) {
     console.error("getDescendants:: group does not contain fromId parameter:" + fromId + " : group:"+group.parent_id)
@@ -160,20 +162,27 @@ export const ACTIVE_ANCESTORS:Set<string> = new Set();
  * @param group
  * @param columnGroups
  * @param colIdx
- * @return Set of card ids that are ancestors to a given node 'fromId'
+ * @return [Static reference] Set of card ids that are ancestors to a given node 'fromId'
  */
 export function getAncestors(fromId: string,  group:GingkoTreeGroup, columnGroups:GingkoTreeGroup[][], colIdx:number):Set<string> {
   const ancestors = ACTIVE_ANCESTORS;
   ancestors.clear();
 
+  let anc:GingkoNode | undefined;
   let curId = fromId;
+
+  function findMatchesCurId(c) {
+    return c._id === curId;
+  }
+  function findGroup(g) {
+    return anc = g.nodes.find(findMatchesCurId);
+  }
+  function findNode(n) {
+    return n.children && n.children.length && n.children.find(findGroup);
+  }
+
   while(--colIdx >= 0) {
-    let anc:GingkoNode | undefined;
-    let colGroupFound = columnGroups[colIdx].find((g)=> {
-      return anc = g.nodes.find((n)=>{
-        return n.children && n.children.length && n.children.find(c => c._id === curId);
-      });
-    });
+    let colGroupFound = columnGroups[colIdx].find(findNode);
     if (colGroupFound && anc) {
       curId = anc._id;
       ancestors.add(curId);

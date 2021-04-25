@@ -1,4 +1,4 @@
-import { FunctionComponent, useEffect, useState } from "react";
+import { FunctionComponent, useEffect, useMemo, useState } from "react";
 import { GingkoTree, getColumnGroups, getDescendantGrpIds, getAncestors,
   ACTIVE_ANCESTORS, ACTIVE_DESCENDANTS, GingkoTreeGroup } from "../shared/util/gingko";
 import DocCard from "./DocCard";
@@ -11,14 +11,9 @@ interface DocProps {
   readonly hostCallback?: (string)=>void;
 }
 
-var LAST_TREE_COLUMNS:GingkoTreeGroup[][] = [];
-var LAST_TREE:GingkoTree;
-
 const Doc: FunctionComponent<DocProps> = ({tree, hostCardId, hostCallback}) => {
 
-  const columnGroups = LAST_TREE !== tree ? getColumnGroups(tree) : LAST_TREE_COLUMNS;
-  LAST_TREE_COLUMNS = columnGroups;
-  LAST_TREE = tree;
+  const columnGroups = useMemo(()=>getColumnGroups(tree), [tree])
 
   const usingHost = hostCardId !== undefined;
 
@@ -62,9 +57,11 @@ const Doc: FunctionComponent<DocProps> = ({tree, hostCardId, hostCallback}) => {
     getAncestors(cardId, group, columnGroups, colIdx);
   }
 
+  // https://github.com/gingko/client/blob/e15ffdee2f99672f08f6bfe5f2f00310822e9129/src/shared/doc.js#L453  // ScrollCards:
   useEffect(() => {
     let cardId = selectedCardId;
     if (cardId) { // !hostCardId &&  (unless host lock?)
+
       if (selectedColumn >= 0) scrollHorizontal(selectedColumn, false);
     }
   }, [selectedCardId]);
@@ -77,16 +74,6 @@ const Doc: FunctionComponent<DocProps> = ({tree, hostCardId, hostCallback}) => {
     }
   }, [hostCardId]);
 
-
-  // Max 2 rendering cycle for callback method for hoster using hostCallback.
-  // console.log(selectedCardId, selectedColumn, selectedGroupIdx);
-
-  /*
-  group.has-active
-  group active-descendant
-  card ancestor
-  card active
-  */
   return (
   <div id="document">
     <div className="left-padding-column" />
@@ -118,3 +105,10 @@ const Doc: FunctionComponent<DocProps> = ({tree, hostCardId, hostCallback}) => {
 }
 
 export default Doc;
+
+/*
+group.has-active
+group active-descendant
+card ancestor
+card active
+*/
