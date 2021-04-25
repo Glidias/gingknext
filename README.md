@@ -2,7 +2,7 @@
 
 A collaborative [Gingko](https://gingkoapp.com) Doc Viewer currently built with [React](https://reactjs.org), React Hooks, [Next.JS](https://nextjs.org) and [RoomService](https://www.roomservice.dev/).
 
-See `env.example` on what to set up for environment variables.
+See [env.example](https://github.com/Glidias/gingknext/blob/master/.env.example) on what to set up for environment variables.
 
 Go to https://app.roomservice.dev/ to set up your Roomservice API key.
 
