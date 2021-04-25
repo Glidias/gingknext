@@ -6,6 +6,8 @@ See [env.example](https://github.com/Glidias/gingknext/blob/master/.env.example)
 
 Go to https://app.roomservice.dev/ to set up your Roomservice API key.
 
+Stay up to date on the [WIKI](https://github.com/Glidias/gingknext/wiki)
+
 ### Frontend viewer
 
 Currently, the frontend look and feel intends to match Gingko v2 (aka. Gingkowriter?) at https://gingkowriter.com (Github source: https://github.com/gingko/client). But the Doc viewer is meant to view any stable/legacy (v1) publicly viewable `https://ginkoapp.com/{treeid}` documents which you (or others) must manually publish via the Tree Settings menu in the Gingko App.
