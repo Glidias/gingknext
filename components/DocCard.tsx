@@ -14,6 +14,7 @@ let activeClassStr = '';
 activeClassStr += activatedVector < 0 ? ' ancestor' : '';
 activeClassStr += activatedVector > 0 ? ' active' : '';
 activeClassStr += activatedVector === 2 ? ' host-active' : '';
+activeClassStr += activatedVector === 1 ? ' client-active' : '';
 return <div
 	id={`card-${node._id}`}
   dir="auto"

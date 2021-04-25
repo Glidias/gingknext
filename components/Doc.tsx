@@ -1,4 +1,4 @@
-import { FunctionComponent, useEffect, useMemo, useState } from "react";
+import { Fragment, FunctionComponent, useEffect, useMemo, useState } from "react";
 import { GingkoTree, getColumnGroups, getDescendantGrpIds, getAncestors,
   ACTIVE_ANCESTORS, ACTIVE_DESCENDANTS, newScrollData, updateScrollDataPositions__, updateScrollDataPositionsFor__ } from "../shared/util/gingko";
 import DocCard from "./DocCard";
@@ -46,11 +46,11 @@ const Doc: FunctionComponent<DocProps> = ({tree, hostCardId, hostCallback}) => {
     const remoteTrigger = !(e.nativeEvent instanceof MouseEvent);
     if (remoteTrigger) {
       e.nativeEvent.stopPropagation();
-      if (hostCallback) return; // for single host, assumed host has already triggered stuff locally on his local computer and doesn't need to reset data
+      // if (hostCallback) return; // for single host, assumed host has already triggered stuff locally on his local computer and doesn't need to reset data
     }
     else if (hostCallback) {
       hostCallback(cardId);
-      // return; // for multiple host switching support? (not optimized render call+1), but Not part of feature plan.
+      return; // for multiple host switching support? (not optimized render call+1), but Not part of feature plan but useful for multiple desktop windows syncing.
     }
 
     let groupElem:HTMLElement = e.currentTarget;
@@ -67,6 +67,11 @@ const Doc: FunctionComponent<DocProps> = ({tree, hostCardId, hostCallback}) => {
     let setIds = getDescendantGrpIds(cardId, group);
 
     setIds = getAncestors(cardId, columnGroups, colIdx);
+  }
+
+  function returnBackToHostHandler(e) {
+    let elem = document.getElementById('card-'+hostCardId);
+    elem?.dispatchEvent( new Event('click', {bubbles: true}));
   }
 
   useEffect(() => {
@@ -92,7 +97,12 @@ const Doc: FunctionComponent<DocProps> = ({tree, hostCardId, hostCallback}) => {
   // console.log(selectedCardId, selectedGroupIdx, selectedColumn);
 
   return (
-  <div id="document">
+    <Fragment>
+      {
+  usingHost ? <div onClick={returnBackToHostHandler} key="returnBtn" className={'back-to-host-btn' + (hostCardId && hostCardId !== selectedCardId ? ' diff-host' : '')}></div>
+    : null
+    }
+  <div key="document" id="document" className={usingHost && hostCardId !== selectedCardId ? 'diff-host' : ''}>
     <div className="left-padding-column" />
     <div id="column-container">
       {
@@ -118,6 +128,7 @@ const Doc: FunctionComponent<DocProps> = ({tree, hostCardId, hostCallback}) => {
     </div>
     <div className="right-padding-column" />
   </div>
+  </Fragment>
   );
 }
 

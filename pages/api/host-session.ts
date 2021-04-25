@@ -1,5 +1,6 @@
 
 import { NextApiRequest, NextApiResponse } from "next";
+//import { HostSessionResponse } from "../../shared/api/types";
 
 import { getRoomIdFromDetails, newRoomDetails, RoomDetails } from "../../shared/util/room";
 const apiKey = process.env.ROOMSERVICE_API_KEY;

@@ -1691,7 +1691,55 @@ span.trial-dark {
   border-left: 4px solid var(--selection-color);
   box-shadow: 0px 1px 3px gray;
 }
+.diff-host .card.host-active {
+  border-left: 4px solid var(--host-select-color) !important;
+}
 
+.diff-host .card.host-active > .view {
+  pointer-events:none;
+}
+
+.diff-host .card.host-active.client-active {
+  border-left: 4px solid var(--selection-color) !important;
+  background: var(--active-bg);
+}
+
+@keyframes fadeInHostBtn {
+  0% {opacity:0;}
+  100% {opacity:0.5;}
+}
+
+/* temp for now */
+.back-to-host-btn {
+  position:absolute;
+  top:10px;
+  left:10px;
+  background-color:var(--host-select-color);
+  width:30px;
+  height:30px;
+  cursor:pointer;
+  opacity:0;
+  z-index:999999;
+
+  display:none;
+  animation-fill-mode:forwards;
+  animation-name: fadeInHostBtn;
+  animation-duration: 0.5s;
+  animation-delay:0.6s;
+
+  align-items: center;
+  justify-content: center;
+}
+.back-to-host-btn:after {
+  content:'⏎';
+  color:white;
+  position:relative;
+  top:2px;
+}
+
+.diff-host.back-to-host-btn {
+  display:flex;
+}
 
 .card.ancestor {
   background: var(--tree-bg-1);
@@ -2046,7 +2094,9 @@ div.tour-step {
   white-space: pre-wrap;
   font-family: "Roboto Mono", monospace;
 }
-
+#roomservice-icon {
+  grid-area: button3;
+}
 
 /* --- Typography --- */
 
@@ -2075,18 +2125,18 @@ p {
   font-family: 'Bitter', serif;
 }
 
-pre, code {
+.document pre, .document code {
   font-family: 'Roboto Mono', monospace;
   color: #333333;
 }
 
-pre,
-blockquote {
+.document pre,
+.document blockquote {
   border: 1px solid #999;
   page-break-inside: avoid;
 }
 
-code {
+.document code {
   padding: 2px 4px;
   font-size: 90%;
   white-space: pre;
