@@ -13,8 +13,7 @@ export interface GingkoTreeGroup {
   nodes: GingkoNode[]
 }
 
-
-/* // exportable?
+/* // importable Gingko v1
 export interface GingkoNodeFull extends GingkoNode {
   //"_id": "799a13d49dda2e94db0001b5",
   //"treeId": "799a135f9dda2e94db0001b2",
@@ -120,7 +119,7 @@ export const ACTIVE_DESCENDANTS:Set<string> = new Set();
  *
  * @param fromId
  * @param group
- * @return [Static reference] Set of descendant group ids (ie. cardIds with children) under a given node 'fromId'
+ * @return {ACTIVE_DESCENDANTS} Set of descendant group ids (ie. cardIds with children) under a given node 'fromId'
  */
 export function getDescendantGrpIds (fromId: string, group:GingkoTreeGroup):Set<string> {
   const descendents = ACTIVE_DESCENDANTS;
@@ -162,7 +161,7 @@ export const ACTIVE_ANCESTORS:Set<string> = new Set();
  * @param group
  * @param columnGroups
  * @param colIdx
- * @return [Static reference] Set of card ids that are ancestors to a given node 'fromId'
+ * @return {ACTIVE_ANCESTORS} Set of card ids that are ancestors to a given node 'fromId'
  */
 export function getAncestors(fromId: string,  group:GingkoTreeGroup, columnGroups:GingkoTreeGroup[][], colIdx:number):Set<string> {
   const ancestors = ACTIVE_ANCESTORS;
