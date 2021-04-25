@@ -48,7 +48,7 @@ const RoomViewer: FunctionComponent<{
 
     const doHostSelectCard = useCallback((cardId) => {
       hostMap?.set('cardId', cardId);
-    }, []);
+    }, [hostMap]);
 
     /*
     useEffect(() => {
