@@ -51,11 +51,12 @@ export default function Home() {
         />
       </label>&nbsp;
       { treeId ?
-        <Link href={`/${treeId}`}>Load</Link>
+        <Link href={`/${treeId}`}>Open</Link>
         : undefined
       }
       <hr></hr>
       <hr></hr>
+      For more information on Gingko, view <Link href="/faq"><a href="/faq">FAQ</a></Link>.
       <hr></hr>
       <a href="https://github.com/Glidias/gingknext" target="_blank">Github Link</a>
     </div>
