@@ -12,7 +12,7 @@ const DocCardView: FunctionComponent<{content: string}> = memo((props) => {
 	useEffect(()=>{
     if (containerRef && containerRef.current) {
       containerRef.current.querySelectorAll('a').forEach((a)=>{
-        a.target = "_blank";
+        if (!a.hasAttribute('target')) a.target = "_blank";
       });
     }
 	}, [props.content])
