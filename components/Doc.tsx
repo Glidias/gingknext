@@ -39,10 +39,14 @@ const Doc: FunctionComponent<DocProps> = ({tree, hostCardId, hostCallback}) => {
     if (cardId === null) {
       return;
     }
+
+    // Doesn't happen now because typically (cardId == null) due to CSS/HTML and event handler location at group
     if (cardId === selectedCardId) {
-      // scroll back again if under viewing
+      // scroll back again if under viewing ?
+      // scrollToCardId(cardId);
       return;
     }
+
     const remoteTrigger = !(e.nativeEvent instanceof MouseEvent);
     if (remoteTrigger) {
       e.nativeEvent.stopPropagation();
@@ -50,7 +54,7 @@ const Doc: FunctionComponent<DocProps> = ({tree, hostCardId, hostCallback}) => {
     }
     else if (hostCallback) {
       hostCallback(cardId);
-      return; // for multiple host switching support? (not optimized render call+1), but Not part of feature plan but useful for multiple desktop windows syncing.
+      return; // for multiple host switching support? (not optimized render call cycles+1), Not part of feature plan but useful for multiple same desktop windows syncing.
     }
 
     let groupElem:HTMLElement = e.currentTarget;
@@ -64,9 +68,9 @@ const Doc: FunctionComponent<DocProps> = ({tree, hostCardId, hostCallback}) => {
     setSelectedColumn(colIdx);
     setSelectedGroupIdx(groupIdx);
 
-    let setIds = getDescendantGrpIds(cardId, group);
+    getDescendantGrpIds(cardId, group);
 
-    setIds = getAncestors(cardId, columnGroups, colIdx);
+    getAncestors(cardId, columnGroups, colIdx);
   }
 
   function returnBackToHostHandler(e) {
@@ -74,15 +78,19 @@ const Doc: FunctionComponent<DocProps> = ({tree, hostCardId, hostCallback}) => {
     elem?.dispatchEvent( new Event('click', {bubbles: true}));
   }
 
+  // https://github.com/gingko/client/blob/e15ffdee2f99672f08f6bfe5f2f00310822e9129/src/shared/doc.js#L453  // ScrollCards:
+  function scrollToCardId(cardId) {
+    if (selectedColumn >= 0) scrollHorizontal(selectedColumn, false);
+    if (scrollData) {
+      updateScrollDataPositionsFor__(scrollData, cardId, selectedColumn, columnGroups[selectedColumn][selectedGroupIdx], columnGroups)
+      scrollColumns(scrollData);
+    }
+  }
+
   useEffect(() => {
     let cardId = selectedCardId;
-    if (cardId) { // !hostCardId &&  (unless host lock?)
-      // https://github.com/gingko/client/blob/e15ffdee2f99672f08f6bfe5f2f00310822e9129/src/shared/doc.js#L453  // ScrollCards:
-      if (selectedColumn >= 0) scrollHorizontal(selectedColumn, false);
-      if (scrollData) {
-        updateScrollDataPositionsFor__(scrollData, cardId, selectedColumn, columnGroups[selectedColumn][selectedGroupIdx], columnGroups)
-        scrollColumns(scrollData);
-      }
+    if (cardId) {
+      scrollToCardId(cardId)
     }
   }, [selectedCardId]);
 
