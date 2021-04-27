@@ -86,7 +86,7 @@ const Doc: FunctionComponent<DocProps> = ({tree, hostCardId, hostCallback}) => {
   function scrollToCardId(cardId) {
     if (selectedColumn >= 0) scrollHorizontal(selectedColumn, false);
     if (scrollData) {
-      let selectedGroup = columnGroups[selectedColumn] ? columnGroups[selectedColumn][selectedGroupIdx] : null;
+      let selectedGroup = columnGroups[selectedColumn] && columnGroups[selectedColumn][selectedGroupIdx] !== undefined ? columnGroups[selectedColumn][selectedGroupIdx] : null;
       if (selectedGroup === null) {
         console.error("scrollToCardId:: Should have a group selected! [col,grp] " + [selectedColumn, selectedGroupIdx])
       }
