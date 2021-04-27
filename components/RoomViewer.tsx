@@ -5,7 +5,7 @@ import { GingkoTree } from "../shared/util/gingko";
 import { LS_KEYS } from "../shared/constants";
 import Head from "next/head";
 import { callGetAPI } from "../shared/util/api-helper";
-import { HostCheckPayload } from "../shared/api/types";
+import { APIResult, HostCheckPayload, HostCheckResponse } from "../shared/api/types";
 
 /**
  * Component to handle wrap document for online collaboration/hosting session
@@ -41,9 +41,13 @@ const RoomViewer: FunctionComponent<{
 
         if (roomkey && userid) {
           (async () => {
-            const hc = await callGetAPI<HostCheckPayload>('host-check', {roomid, roomkey, userid, treeid});
-            setIsHost(hc.data && hc.data.host);
-            hostMap.set('cardId', ''); // todo: initially saved cardId from LS
+            const hc = await callGetAPI<HostCheckPayload, APIResult<HostCheckResponse>>('host-check', {roomid, roomkey, userid, treeid});
+            if (hc.data) {
+              setIsHost(hc.data.host);
+              hostMap.set('cardId', ''); // todo: initially saved cardId from LS
+            } else {
+              console.error("HostCheckResponse failed: " + hc.error);
+            }
           })();
         }
       }, [hostMap]);

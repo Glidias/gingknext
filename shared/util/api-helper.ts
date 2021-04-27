@@ -1,8 +1,14 @@
 
 import URI from 'urijs';
+import {ApiGetFilenames} from '../api/types';
 
- // TODO: strict typing api call and response
-export async function callGetAPI<T>(path:string, params: T) {
+/**
+ * Generic Api get call with <T> payload and response <R>
+ * @param path
+ * @param params the T payload
+ * @return The response R
+ */
+export async function callGetAPI<T, R>(path:ApiGetFilenames, params: T):Promise<R> {
   const response = await fetch(new URI("/api/"+ path).addSearch(params).toString(), {
     method: "GET",
     headers: {
@@ -18,7 +24,5 @@ export async function callGetAPI<T>(path:string, params: T) {
   }
 
   const body = await response.json();
-  return {
-    data: body
-  }
+  return body;
 }

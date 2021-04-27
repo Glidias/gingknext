@@ -10,7 +10,7 @@ import rehypeKatex from 'rehype-katex'
 
 const DocCardView: FunctionComponent<{content: string}> = memo((props) => {
   const containerRef = useRef<HTMLDivElement>(null);
-	useEffect(()=>{
+  useEffect(()=>{
     if (containerRef && containerRef.current) {
       containerRef.current.querySelectorAll('a').forEach((a)=>{
         if (!a.hasAttribute('target')) a.target = "_blank";
@@ -19,15 +19,15 @@ const DocCardView: FunctionComponent<{content: string}> = memo((props) => {
         }
       });
     }
-	}, [props.content])
+  }, [props.content])
 
-	return <div className="view" ref={containerRef}>
-	<ReactMarkdown rehypePlugins={[rehypeRaw, gfm]}>
-		{props.content}
-	</ReactMarkdown>
-	</div>
-	}, (prevProps, props) => {
-		return prevProps.content !== props.content;
+  return <div className="view" ref={containerRef}>
+    <ReactMarkdown rehypePlugins={[rehypeRaw, gfm]}>
+      {props.content}
+    </ReactMarkdown>
+  </div>
+  }, (prevProps, props) => {
+    return prevProps.content !== props.content;
 });
 
 function processAlt(a:HTMLAnchorElement) {

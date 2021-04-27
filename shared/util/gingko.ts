@@ -87,16 +87,17 @@ var __lastDocScreenHeight__:number;
  * @param colsScrollData  The current scroll column data being used
  * @param cardId  The selected card id
  * @param colIndex  The column index belonging to selected card
- * @param group The group reference assosiated with the selected card id
- * @param columnGroups Entire gridded list of column groups from getColumnGroups(...)
+ * @param group The group reference assosiated with the selected card id. to facilitate GingkoNode search by card id for descendent column scrolling. If null, this doesn't happen.
+ * @param columnGroups Entire gridded list of column groups from getColumnGroups(...) to facilitate descendent columns scrolling
  */
-export function updateScrollDataPositionsFor__(colsScrollData:ColumnsScrollData, cardId: string, colIndex:number, group:GingkoTreeGroup, columnGroups:GingkoTreeGroup[][]):void {
+export function updateScrollDataPositionsFor__(colsScrollData:ColumnsScrollData, cardId: string, colIndex:number, group:GingkoTreeGroup | null, columnGroups:GingkoTreeGroup[][]):void {
   const scrnHeight = getDocScrnHeight__();
   const scrnHeightChanged = scrnHeight !== __lastDocScreenHeight__;
   __lastDocScreenHeight__ = scrnHeight;
   let count = 0;
 
   /**
+   * Ancestor columns:
    * all ACTIVE_ANCESTORS column positions must be checked/updated
    * @param cardId Ancestor card id
    */
@@ -117,49 +118,53 @@ export function updateScrollDataPositionsFor__(colsScrollData:ColumnsScrollData,
   function findNode(n) {
     return n._id === cardId;
   }
-  let curNode: GingkoNode | null | undefined = group.nodes.find(findNode);
-  count = colIndex + 1;
-  // const len = colsScrollData.columns.length;
-  while (curNode && curNode.children && curNode.children.length) { //  && count < len
-    let cGroupId = curNode._id;
-    let curColData = colsScrollData.columns[count].scrollData;
-    let invalidatedGroup = cGroupId !== curColData.prevGroupId;
-    if (invalidatedGroup || scrnHeightChanged) {
-      curColData.prevGroupId = cGroupId;
-      curColData.target = invalidatedGroup ?
-        curNode.children[0]._id // if group changes, switch to first child of group
-        : curColData.target; // keep same target to recalculate if group remains the same
-      let elemId = 'card-' + curColData.target;
-      let elem = document.getElementById(elemId);
-      if (!elem) console.error('updateScrollDataPositionsFor__DESC:: element not found!! id:'+elemId);
-      curColData.position = (elem ? elem.clientHeight : 0) > scrnHeight ? 'Before' : 'Center';
 
-      // note: there is a "faster"/sniffier method via dom query/parent and specific dom attribute convention (data-idx attribute) to derive the group
-      // rather than search from top to bottom of entire column...but isnt't used here.
-      let dsc: GingkoNode | undefined;
-      let colGroupFound = columnGroups[count].find((g)=> {
-        return dsc = g.nodes.find((n)=>{
-          return n._id === curColData.target;
-        });
-      });
-      if (colGroupFound && dsc) {
-        if ((!dsc.children || !dsc.children.length)) { // for found descendant item, if no children available,
-          dsc = colGroupFound.nodes.find((n)=> { // find first available node containing children under colGroupFround to recurse further in
-            return n.children && n.children.length;
+  // Descendant columns:
+  if (group !== null) {
+    let curNode: GingkoNode | null | undefined = group.nodes.find(findNode);
+    count = colIndex + 1;
+    // const len = colsScrollData.columns.length;
+    while (curNode && curNode.children && curNode.children.length) { //  && count < len
+      let cGroupId = curNode._id;
+      let curColData = colsScrollData.columns[count].scrollData;
+      let invalidatedGroup = cGroupId !== curColData.prevGroupId;
+      if (invalidatedGroup || scrnHeightChanged) {
+        curColData.prevGroupId = cGroupId;
+        curColData.target = invalidatedGroup ?
+          curNode.children[0]._id // if group changes, switch to first child of group
+          : curColData.target; // keep same target to recalculate if group remains the same
+        let elemId = 'card-' + curColData.target;
+        let elem = document.getElementById(elemId);
+        if (!elem) console.error('updateScrollDataPositionsFor__DESC:: element not found!! id:'+elemId);
+        curColData.position = (elem ? elem.clientHeight : 0) > scrnHeight ? 'Before' : 'Center';
+
+        // note: there is a "faster"/sniffier method via dom query/parent and specific dom attribute convention (data-idx attribute) to derive the group
+        // rather than search from top to bottom of entire column...but isnt't used here.
+        let dsc: GingkoNode | undefined;
+        let colGroupFound = columnGroups[count].find((g)=> {
+          return dsc = g.nodes.find((n)=>{
+            return n._id === curColData.target;
           });
-        }
-        curNode = dsc;
+        });
+        if (colGroupFound && dsc) {
+          if ((!dsc.children || !dsc.children.length)) { // for found descendant item, if no children available,
+            dsc = colGroupFound.nodes.find((n)=> { // find first available node containing children under colGroupFround to recurse further in
+              return n.children && n.children.length;
+            });
+          }
+          curNode = dsc;
+        } else {
+          console.error("updateScrollDataPositionsFor__DESC:: failed to find column id for next target:"+curColData.target)
+          curNode = null;
+        };
       } else {
-        console.error("updateScrollDataPositionsFor__DESC:: failed to find column id for next target:"+curColData.target)
         curNode = null;
-      };
-    } else {
-      curNode = null;
+      }
+      count++;
     }
-    count++;
   }
 
-  // assumed always changed: current card position for current column to update
+  // Current column: assumed always changed: current card position for current column to update
   let curColData = colsScrollData.columns[colIndex].scrollData;
   curColData.target = cardId;
   let elemId = 'card-' + cardId;

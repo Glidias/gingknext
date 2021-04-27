@@ -1,8 +1,9 @@
 
 import { NextApiRequest, NextApiResponse } from "next";
+import { APIResult, HostCheckResponse } from "../../shared/api/types";
 import { getDetailsFromRoomId } from "../../shared/util/room";
 
-export default async (req: NextApiRequest, res: NextApiResponse) => {
+export default async (req: NextApiRequest, res: NextApiResponse<APIResult<HostCheckResponse>>) => {
   let errCode = 0;
 
   const {userid, roomkey, treeid, roomid} = req.query;
@@ -24,6 +25,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   res.json({
-    host: getDetailsFromRoomId(roomid+'', {userid:userid+'', roomkey:roomkey+'', treeid:treeid+''})
+    data: {
+      host: !!getDetailsFromRoomId(roomid+'', {userid:userid+'', roomkey:roomkey+'', treeid:treeid+''})
+    }
   });
 };
