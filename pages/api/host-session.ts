@@ -1,11 +1,11 @@
 
 import { NextApiRequest, NextApiResponse } from "next";
-//import { HostSessionResponse } from "../../shared/api/types";
+import { APIResult, HostSessionResponse } from "../../shared/api/types";
 
 import { getRoomIdFromDetails, newRoomDetails, RoomDetails } from "../../shared/util/room";
 const apiKey = process.env.ROOMSERVICE_API_KEY;
 
-export default async (req: NextApiRequest, res: NextApiResponse) => {
+export default async (req: NextApiRequest, res: NextApiResponse<APIResult<HostSessionResponse>>) => {
   let errCode = 0;
   if (!apiKey) {
     errCode = -1;
@@ -39,7 +39,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     await checkpoint.save(map);
   }
   res.json({
-    pin: sessionPin,
-    roomId
+    data: {
+      pin: sessionPin,
+      roomId
+    }
   });
 };

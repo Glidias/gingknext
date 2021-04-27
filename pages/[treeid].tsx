@@ -4,7 +4,7 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import Doc from "../components/Doc";
 import DocHeader from "../components/DocHeader";
-import { HostSessionPayload } from "../shared/api/types";
+import { APIResult, HostSessionPayload, HostSessionResponse } from "../shared/api/types";
 import { callGetAPI } from "../shared/util/api-helper";
 import { GingkoNode, _loadGingkoTree } from "../shared/util/gingko";
 import { getRoomHostingKey, getUserID } from "../shared/util/mockuser";
@@ -33,9 +33,11 @@ export default function TreeDoc(props:TreeProps) {
   async function onRoomServiceClick(e) {
     const roomkey = getRoomHostingKey();
     const userid = getUserID();
-    const result = await callGetAPI<HostSessionPayload>('host-session', {roomkey, userid, treeid: props.treeid});
+    const result = await callGetAPI<HostSessionPayload, APIResult<HostSessionResponse>>('host-session', {roomkey, userid, treeid: props.treeid});
     if (result.data && result.data.roomId) {
       router.push("/room/" + result.data.roomId);
+    } else {
+      console.error('onRoomServiceClick:: failed ot find HostSessionResponse: '+result.error);
     }
   }
 
