@@ -87,8 +87,8 @@ var __lastDocScreenHeight__:number;
  * @param colsScrollData  The current scroll column data being used
  * @param cardId  The selected card id
  * @param colIndex  The column index belonging to selected card
- * @param group The group reference assosiated with the selected card id
- * @param columnGroups Entire gridded list of column groups from getColumnGroups(...)
+ * @param group The group reference assosiated with the selected card id. to facilitate GingkoNode search by card id for descendent column scrolling. If null, this doesn't happen.
+ * @param columnGroups Entire gridded list of column groups from getColumnGroups(...) to facilitate descendent columns scrolling
  */
 export function updateScrollDataPositionsFor__(colsScrollData:ColumnsScrollData, cardId: string, colIndex:number, group:GingkoTreeGroup, columnGroups:GingkoTreeGroup[][]):void {
   const scrnHeight = getDocScrnHeight__();
@@ -97,6 +97,7 @@ export function updateScrollDataPositionsFor__(colsScrollData:ColumnsScrollData,
   let count = 0;
 
   /**
+   * Ancestor columns:
    * all ACTIVE_ANCESTORS column positions must be checked/updated
    * @param cardId Ancestor card id
    */
@@ -117,6 +118,8 @@ export function updateScrollDataPositionsFor__(colsScrollData:ColumnsScrollData,
   function findNode(n) {
     return n._id === cardId;
   }
+
+  // Descendant columns:
   let curNode: GingkoNode | null | undefined = group.nodes.find(findNode);
   count = colIndex + 1;
   // const len = colsScrollData.columns.length;
@@ -159,7 +162,7 @@ export function updateScrollDataPositionsFor__(colsScrollData:ColumnsScrollData,
     count++;
   }
 
-  // assumed always changed: current card position for current column to update
+  // Current column: assumed always changed: current card position for current column to update
   let curColData = colsScrollData.columns[colIndex].scrollData;
   curColData.target = cardId;
   let elemId = 'card-' + cardId;
