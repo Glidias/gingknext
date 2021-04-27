@@ -25,10 +25,10 @@ export async function getServerSideProps(context:GetServerSidePropsContext):Prom
   };
 }
 
-export default function TreeDoc<Function>(props:TreeProps) {
+export default function TreeDoc(props:TreeProps) {
 
   const router = useRouter();
-  const minimalView = router.query.emb !== undefined; // temp for now '?app' for viewing .
+  const minimalView = router.query.emb !== undefined;
 
   async function onRoomServiceClick(e) {
     const roomkey = getRoomHostingKey();

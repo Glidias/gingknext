@@ -2,7 +2,7 @@ import { RoomServiceProvider } from "@roomservice/react";
 import RoomViewer from "../../components/RoomViewer";
 import { useUserID } from "../../shared/util/mockuser";
 import { useRouter } from 'next/router'
-import { getDetailsFromRoomId, getRoomIdFromDetails, getTreeIdFromRoomDetails } from "../../shared/util/room";
+import { getDetailsFromRoomId, getTreeIdFromRoomDetails } from "../../shared/util/room";
 import { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
 import { FunctionComponent, useEffect } from "react";
 import { GingkoTree, _loadGingkoTree } from "../../shared/util/gingko";
