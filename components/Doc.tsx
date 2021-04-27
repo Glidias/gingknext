@@ -64,6 +64,10 @@ const Doc: FunctionComponent<DocProps> = ({tree, hostCardId, hostCallback}) => {
     let groupIdx = groupElem ? parseInt(groupElem.getAttribute('data-idx') || '-1') : -2;
     let group = columnGroups[colIdx][groupIdx];
 
+    if (colIdx < 0 || groupIdx < 0) {
+      console.error("clickGroupHandler:: Clicked card should have group assosiated! with it")
+    }
+
     setSelectedCardId(cardId);
     setSelectedColumn(colIdx);
     setSelectedGroupIdx(groupIdx);
@@ -82,7 +86,11 @@ const Doc: FunctionComponent<DocProps> = ({tree, hostCardId, hostCallback}) => {
   function scrollToCardId(cardId) {
     if (selectedColumn >= 0) scrollHorizontal(selectedColumn, false);
     if (scrollData) {
-      updateScrollDataPositionsFor__(scrollData, cardId, selectedColumn, columnGroups[selectedColumn][selectedGroupIdx], columnGroups)
+      let selectedGroup = columnGroups[selectedColumn] ? columnGroups[selectedColumn][selectedGroupIdx] : null;
+      if (selectedGroup === null) {
+        console.error("scrollToCardId:: Should have a group selected! [col,grp] " + [selectedColumn, selectedGroupIdx])
+      }
+      updateScrollDataPositionsFor__(scrollData, cardId, selectedColumn, selectedGroup, columnGroups)
       scrollColumns(scrollData);
     }
   }
