@@ -62,17 +62,15 @@ const Doc: FunctionComponent<DocProps> = ({tree, hostCardId, hostCallback}) => {
 
     let colIdx = colElem ? parseInt(colElem.getAttribute('data-idx') || '-1') : -2;
     let groupIdx = groupElem ? parseInt(groupElem.getAttribute('data-idx') || '-1') : -2;
-    let group = columnGroups[colIdx][groupIdx];
 
-    if (colIdx < 0 || groupIdx < 0) {
-      console.error("clickGroupHandler:: Clicked card should have group assosiated! with it")
-    }
+    let group = columnGroups[colIdx] && columnGroups[colIdx][groupIdx] !== undefined ? columnGroups[colIdx][groupIdx] : null;
 
     setSelectedCardId(cardId);
     setSelectedColumn(colIdx);
     setSelectedGroupIdx(groupIdx);
 
-    getDescendantGrpIds(cardId, group);
+    if (group !== null) getDescendantGrpIds(cardId, group);
+    else console.error("clickGroupHandler:: Should have a group selected! [col,grp] " + [colIdx, groupIdx]);
 
     getAncestors(cardId, columnGroups, colIdx);
   }
