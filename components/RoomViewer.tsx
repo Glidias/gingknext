@@ -2,10 +2,10 @@ import { useMap, useRoom, useList} from "@roomservice/react";
 import Doc from "./Doc";
 import { FunctionComponent, useCallback, useEffect, useState } from 'react'
 import { GingkoTree } from "../shared/util/gingko";
-import { LS_KEYS } from "../shared/constants";
 import Head from "next/head";
 import { callGetAPI } from "../shared/util/api-helper";
 import { APIResult, HostCheckPayload, HostCheckResponse } from "../shared/api/types";
+import { getRoomHostingKey, getUserID } from "../shared/util/mockuser";
 
 /**
  * Component to handle wrap document for online collaboration/hosting session
@@ -35,8 +35,8 @@ const RoomViewer: FunctionComponent<{
         */
 
         ///*
-        let userid = localStorage.getItem(LS_KEYS.userId);
-        let roomkey = localStorage.getItem(LS_KEYS.roomKey);
+        let userid = getUserID();
+        let roomkey = getRoomHostingKey();
         //*/
 
         if (roomkey && userid) {
