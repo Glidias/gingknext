@@ -2,7 +2,7 @@
 /**
  * Common Gingko helpers across client/server/both.
  * Exported methods suffixed with `__` are client-side-only and can only run on browser (ie. typically requires DOM).
- * Exported methods suffixed with `_` are server-side-only and can run only on Node.
+ * Exported methods prefixed with `_` are server-side-only and can run only on Node.
  * @author Glidias
  */
 
