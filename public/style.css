@@ -1716,6 +1716,9 @@ span.trial-dark {
 .diff-host .card.host-active.active {
   background: var(--tree-bg-1);
 }
+.diff-host .group.active-descendant .card.host-active.active {
+  background: var(--active-bg);
+}
 
 .diff-host .card.host-active.client-active {
   border-left: 4px solid var(--selection-color) !important;
