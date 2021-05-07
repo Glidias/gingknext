@@ -1713,6 +1713,10 @@ span.trial-dark {
   pointer-events:none;
 }
 
+.diff-host .card.host-active.active {
+  background: var(--tree-bg-1);
+}
+
 .diff-host .card.host-active.client-active {
   border-left: 4px solid var(--selection-color) !important;
   background: var(--active-bg);
